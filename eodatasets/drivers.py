@@ -60,6 +60,15 @@ class DatasetDriver(object):
         """
         return True
 
+    def fill_provenance(self, provenance):
+        """
+        Fill any provenance for software used to produce the datset.
+
+        :type provenance: eodatasets.provenance.SoftwareProvenance
+        :rtype: eodatasets.provenance.SoftwareProvenance
+        """
+        raise NotImplementedError()
+
     def browse_image_bands(self, d):
         """
         Band ids for for an rgb browse image.
