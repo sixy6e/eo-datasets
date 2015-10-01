@@ -8,6 +8,7 @@ from subprocess import check_call
 import datetime
 import uuid
 import socket
+import copy
 from functools import partial
 
 from pathlib import Path
@@ -126,40 +127,40 @@ def _copy_file(source_path, destination_path, compress_imagery=True, hard_link=F
     return destination_path.stat().st_size
 
 
-def prepare_target_imagery(
-        image_directory,
-        package_directory,
-        translate_path=lambda path: path,
-        after_file_copy=lambda source_path, final_path: None,
-        compress_imagery=True,
-        hard_link=False):
-    """
-    Copy a directory of files if not already there. Possibly compress images.
-
-    :type translate_path: (Path) -> Path
-    :type image_directory: Path
-    :type package_directory: Path
-    :type after_file_copy: Path -> None
-    :type hard_link: bool
-    :type compress_imagery: bool
-    """
-    if not package_directory.exists():
-        package_directory.mkdir()
-
-    for source_path in image_directory.iterdir():
-        # Skip hidden files
-        if source_path.name.startswith('.'):
-            continue
-
-        target_path = translate_path(source_path)
-        if target_path is None:
-            continue
-
-        target_path = ptype.rebase_path(image_directory, package_directory, target_path)
-
-        _copy_file(source_path, target_path, compress_imagery, hard_link=hard_link)
-
-        after_file_copy(source_path, target_path)
+# def prepare_target_imagery(
+#         image_directory,
+#         package_directory,
+#         translate_path=lambda path: path,
+#         after_file_copy=lambda source_path, final_path: None,
+#         compress_imagery=True,
+#         hard_link=False):
+#     """
+#     Copy a directory of files if not already there. Possibly compress images.
+#
+#     :type translate_path: (Path) -> Path
+#     :type image_directory: Path
+#     :type package_directory: Path
+#     :type after_file_copy: Path -> None
+#     :type hard_link: bool
+#     :type compress_imagery: bool
+#     """
+#     if not package_directory.exists():
+#         package_directory.mkdir()
+#
+#     for source_path in image_directory.iterdir():
+#         # Skip hidden files
+#         if source_path.name.startswith('.'):
+#             continue
+#
+#         target_path = translate_path(source_path)
+#         if target_path is None:
+#             continue
+#
+#         target_path = ptype.rebase_path(image_directory, package_directory, target_path)
+#
+#         _copy_file(source_path, target_path, compress_imagery, hard_link=hard_link)
+#
+#         after_file_copy(source_path, target_path)
 
 
 class IncompletePackage(Exception):
@@ -201,19 +202,19 @@ def expand_driver_metadata(dataset_driver, dataset, image_paths):
         Mot enough metadata can be extracted from the dataset.
     """
 
-    dataset.product_type = dataset_driver.get_id()
-    dataset.ga_label = dataset_driver.get_ga_label(dataset)
+    #dataset.product_type = dataset_driver.get_id()
+    #dataset.ga_label = dataset_driver.get_ga_label(dataset)
 
-    dataset.size_bytes = _file_size_bytes(*image_paths)
+    #dataset.size_bytes = _file_size_bytes(*image_paths)
 
-    if image_paths:
-        bands = [dataset_driver.to_band(dataset, path) for path in image_paths]
-
-        if bands:
-            if not dataset.image:
-                dataset.image = ptype.ImageMetadata()
-
-            dataset.image.bands = {band.number: band for band in bands if band}
+    # if image_paths:
+    #     bands = [dataset_driver.to_band(dataset, path) for path in image_paths]
+    #
+    #     if bands:
+    #         if not dataset.image:
+    #             dataset.image = ptype.ImageMetadata()
+    #
+    #         dataset.image.bands = {band.number: band for band in bands if band}
 
     return metadata.expand_common_metadata(dataset)
 
@@ -239,8 +240,7 @@ def package_inplace_dataset(dataset_driver, dataset, image_path):
     return serialise.write_dataset_metadata(image_path, dataset)
 
 
-def package_dataset(dataset_driver,
-                    dataset,
+def package_dataset(dataset,
                     image_path,
                     target_path,
                     hard_link=False):
@@ -273,34 +273,45 @@ def package_dataset(dataset_driver,
 
     _LOG.debug('Packaging %r -> %r', image_path, target_path)
     package_directory = target_path.joinpath('product')
-
-    file_paths = []
+    if not package_directory.exists():
+        package_directory.mkdir()
 
     def after_file_copy(source_path, target_path):
         _LOG.debug('%r -> %r', source_path, target_path)
         checksums.add_file(target_path)
-        file_paths.append(target_path)
-
-    prepare_target_imagery(
-        image_path,
-        package_directory,
-        translate_path=partial(dataset_driver.translate_path, dataset),
-        after_file_copy=after_file_copy,
-        hard_link=hard_link
-    )
-
-    validate_metadata(dataset)
-    dataset = expand_driver_metadata(dataset_driver, dataset, file_paths)
 
     #: :type: ptype.DatasetMetadata
-    dataset = ptype.rebase_paths(image_path, package_directory, dataset)
+    dataset = copy.deepcopy(dataset)
 
-    create_dataset_browse_images(
-        dataset_driver,
-        dataset,
-        target_path,
-        after_file_creation=checksums.add_file
-    )
+    if dataset.image and dataset.image.bands:
+        for _, band in dataset.image.bands.iteritems():
+            source_path = band.path
+            dest_path = source_path
+            # TODO: rename bands to <ga_label>_<band>.tif
+            if source_path.suffix == ".bin":
+                dest_path = source_path.with_suffix(".tif")
+            dest_path = ptype.rebase_path(image_path, package_directory, dest_path)
+            _copy_file(source_path, dest_path, compress_imagery=True, hard_link=hard_link)
+            after_file_copy(source_path, dest_path)
+            band.path = dest_path
+
+    if dataset.ancillary_files:
+        for file_ in dataset.ancillary_files:
+            source_path = file_.path
+            dest_path = ptype.rebase_path(image_path, package_directory, source_path)
+            _copy_file(source_path, dest_path, compress_imagery=True, hard_link=hard_link)
+            after_file_copy(source_path, dest_path)
+            file_.path = dest_path
+
+    validate_metadata(dataset)
+
+    # TODO: browse images
+    # create_dataset_browse_images(
+    #     dataset_driver,
+    #     dataset,
+    #     target_path,
+    #     after_file_creation=checksums.add_file
+    # )
 
     target_checksums_path = target_path / GA_CHECKSUMS_FILE_NAME
     dataset.checksum_path = target_checksums_path
@@ -310,4 +321,4 @@ def package_dataset(dataset_driver,
     checksums.add_file(target_metadata_path)
     checksums.write(target_checksums_path)
 
-    return dataset.ga_label
+    return dataset

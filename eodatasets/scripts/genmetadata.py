@@ -6,7 +6,7 @@ import logging
 import click
 from pathlib import Path
 
-from eodatasets import package, drivers, serialise
+from eodatasets import metadata, package, drivers, serialise
 from eodatasets.scripts import init_logging
 
 _LOG = logging.getLogger('eodatasets')
@@ -23,7 +23,7 @@ _LOG = logging.getLogger('eodatasets')
 @click.argument('package_type',
                 type=click.Choice(drivers.PACKAGE_DRIVERS.keys()))
 @click.argument('datasets',
-                type=click.Path(exists=True, readable=True, writable=True),
+                type=click.Path(exists=True, readable=True, writable=False),
                 nargs=-1)
 def run(parent, debug, package_type, datasets):
     """
@@ -41,8 +41,18 @@ def run(parent, debug, package_type, datasets):
         source_id = driver.expected_source().get_id()
         parent_datasets.update({source_id: serialise.read_dataset_metadata(Path(parent[0]))})
 
+
+
     for dataset_file in datasets:
         dataset_path = Path(dataset_file)
+
+        dataset = package.init_existing_dataset(dataset_path, driver, parent_datasets)
+        package.validate_metadata(dataset)
+        dataset = metadata.expand_common_metadata(dataset)
+        serialise.write_dataset_metadata(dataset_path, dataset)
+        continue
+        #serialise.write_yaml_metadata(dataset, 'out.yaml', dataset_path)
+
         md_path = package.package_inplace_dataset(
             driver,
             package.init_existing_dataset(dataset_path, driver, parent_datasets),

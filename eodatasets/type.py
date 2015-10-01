@@ -695,6 +695,17 @@ class UsgsMetadata(SimpleObject):
         self.entity_id = entity_id
 
 
+class AncillaryFile(SimpleObject):
+    PROPERTY_PARSERS = {
+        'path': Path
+    }
+
+    def __init__(self, type_=None, path=None, description=None):
+        self.type_ = type_
+        self.path = path
+        self.description = description
+
+
 class DatasetMetadata(SimpleObject):
     PROPERTY_PARSERS = {
         'id_': uuid.UUID,
@@ -707,7 +718,8 @@ class DatasetMetadata(SimpleObject):
         'grid_spatial': GridSpatialMetadata.from_dict,
         'browse': BrowseMetadata.from_named_dicts,
         'image': ImageMetadata.from_dict,
-        'lineage': LineageMetadata.from_dict
+        'lineage': LineageMetadata.from_dict,
+        'ancillary_files': AncillaryFile.from_dicts
     }
 
     def __init__(self, id_=None,
@@ -728,7 +740,8 @@ class DatasetMetadata(SimpleObject):
                  grid_spatial=None,
                  browse=None,
                  image=None,
-                 lineage=None):
+                 lineage=None,
+                 ancillary_files=None):
         super(DatasetMetadata, self).__init__()
 
         self.id_ = id_ or uuid.uuid1()
@@ -791,6 +804,8 @@ class DatasetMetadata(SimpleObject):
         self.image = image
         #: :type: LineageMetadata
         self.lineage = lineage
+        #: :type: list of AncillaryFile
+        self.ancillary_files = ancillary_files
 
 
 def rebase_path(from_root_path, to_root_path, path):

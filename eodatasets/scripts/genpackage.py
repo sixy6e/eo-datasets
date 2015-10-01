@@ -50,15 +50,14 @@ def run(parent, debug, hard_link, package_type, dataset, destination):
         dataset_path = Path(dataset_folder)
         temp_output_dir = Path(tempfile.mkdtemp(prefix='.packagetmp.', dir=destination))
 
-        dataset_id = package.package_dataset(
-            driver,
+        new_dataset = package.package_dataset(
             package.init_existing_dataset(dataset_path, driver, parent_datasets),
             dataset_path,
             temp_output_dir,
             hard_link=hard_link
         )
 
-        os.rename(str(temp_output_dir), os.path.join(destination, dataset_id))
+        os.rename(str(temp_output_dir), os.path.join(destination, new_dataset.ga_label))
 
 
 if __name__ == '__main__':
