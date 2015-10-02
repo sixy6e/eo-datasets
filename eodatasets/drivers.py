@@ -737,6 +737,7 @@ class EODSDriver(DatasetDriver):
             path.stem)
         fields = m.groupdict()
 
+        dataset.product_type = "eods_"+fields["type"]
         dataset.ga_level = fields["level"]
         dataset.ga_label = path.stem
         dataset.format_ = ptype.FormatMetadata(name='GeoTiff')
