@@ -77,39 +77,12 @@ class DatasetDriver(object):
         if ancillary_files:
             dataset.ancillary_files = ancillary_files
 
-    def get_ga_label(self, dataset):
-        """
-        Generate the GA Label ("dataset id") for a dataset.
-        :type dataset:  ptype.DatasetMetadata
-        :rtype: str
-        """
-        raise NotImplementedError()
-
     def expected_source(self):
         """
         Expected source dataset (driver).
         :rtype: DatasetDriver
         """
         raise NotImplementedError()
-
-    def translate_path_depr(self, dataset, file_path):
-        """
-        Translate an input filename if desired.
-
-        Returning None will exclude the file from the output package.
-
-        :type dataset: ptype.DatasetMetadata
-        :type file_path: Path
-        :rtype: Path
-
-        >>> # Test default behaviour: all files included unchanged, suffix is lowercase.
-        >>> DatasetDriver().translate_path_depr(None, Path('/tmp/fake_path.TXT'))
-        PosixPath('/tmp/fake_path.TXT')
-        >>> DatasetDriver().translate_path_depr(None, Path('/tmp/passinfo'))
-        PosixPath('/tmp/passinfo')
-        """
-        # Default: no modification to filename.
-        return file_path
 
     def to_bands(self, path):
         """
@@ -120,25 +93,6 @@ class DatasetDriver(object):
         :rtype: list of ptype.BandMetadata
         """
         raise NotImplementedError()
-
-    def browse_image_bands(self, d):
-        """
-        Band ids for for an rgb browse image.
-        :type d: ptype.DatasetMetadata
-        :rtype (str, str, str)
-        """
-        # Defaults for satellites. Different products may override this.
-        # These values come from the ARG25 spec.
-        _satellite_browse_bands = {
-            'LANDSAT_5': ('7', '4', '1'),
-            'LANDSAT_7': ('7', '4', '1'),
-            'LANDSAT_8': ('7', '5', '2'),
-        }
-        browse_bands = _satellite_browse_bands.get(d.platform.code)
-        if not browse_bands:
-            raise ValueError('Unknown browse bands for satellite %s' % d.platform.code)
-
-        return browse_bands
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:
@@ -414,7 +368,7 @@ class RawDriver(DatasetDriver):
         dataset = pds.extract_md(dataset, path)
         dataset = npphdf5.extract_md(dataset, path)
 
-        dataset.product_type = self.get_id()
+        dataset.product_type = "RAW"
         dataset.ga_label = self.get_ga_label(dataset)
 
         # TODO: Antenna coords for groundstation? Heading?
@@ -453,35 +407,13 @@ class OrthoDriver(DatasetDriver):
 
         md_image.populate_from_image_metadata(dataset)
 
-        dataset.product_type = self.get_id()
+        dataset.product_type = "ORTHO"
         dataset.format_ = ptype.FormatMetadata("GeoTiff")
-        dataset.ga_label = self.get_ga_label(dataset)
+        dataset.ga_label = _fill_dataset_label(dataset,
+                                   '{satnumber}_{sensor}_{level}_{galevel}_GALPGS01-{stationcode}_{path}_{rows}_{day}'
+                                   )
 
         return dataset
-
-    def translate_path_depr(self, dataset, file_path):
-        """
-        Exclude .aux.xml paths.
-        :type dataset: ptype.DatasetMetadata
-        :type file_path: Path
-        :rtype: Path | None
-
-        >>> OrthoDriver().translate_path_depr(None, Path('something.TIF'))
-        PosixPath('something.TIF')
-        >>> OrthoDriver().translate_path_depr(None, Path('something.tif'))
-        PosixPath('something.tif')
-        >>> OrthoDriver().translate_path_depr(None, Path('something.TIF.aux.xml'))
-        """
-        # Inherit default behaviour
-        file_path = super(OrthoDriver, self).translate_path_depr(dataset, file_path)
-
-        if not file_path:
-            return file_path
-
-        if file_path.name.endswith('.aux.xml'):
-            return None
-
-        return file_path
 
     def to_bands(self, path):
         """
@@ -511,17 +443,6 @@ class OrthoDriver(DatasetDriver):
         band_number = name[position+2:]
 
         return [ptype.BandMetadata(path=path, number=band_number)]
-
-    def get_ga_label(self, dataset):
-        # Examples:
-        # "LS8_OLITIRS_OTH_P41_GALPGS01-002_101_078_20141012"
-        # "LS7_ETM_SYS_P31_GALPGS01-002_114_73_20050107"
-        #     "LS5_TM_OTH_P51_GALPGS01-002_113_063_20050601"
-
-        return _fill_dataset_label(
-            dataset,
-            '{satnumber}_{sensor}_{level}_{galevel}_GALPGS01-{stationcode}_{path}_{rows}_{day}'
-        )
 
 
 def borrow_single_sourced_fields(dataset, source_dataset):
@@ -563,9 +484,6 @@ class NbarDriver(DatasetDriver):
     def expected_source(self):
         return OrthoDriver()
 
-    def _file_is_pertinent(self, file_path):
-        return file_path.name.startswith('reflectance_{}'.format(self.subset_name))
-
     def get_ga_label(self, dataset):
         # Example: LS8_OLITIRS_NBAR_P51_GALPGS01-032_090_085_20140115
 
@@ -602,29 +520,6 @@ class NbarDriver(DatasetDriver):
             return number[1:]
         else:
             return number
-
-    def translate_path_depr(self, dataset, file_path):
-        """
-        :type dataset: ptype.DatasetMetadata
-        :type file_path: Path
-        :rtype: Path
-        >>> from tests.metadata.mtl.test_ls8 import EXPECTED_OUT as ls8_dataset
-        >>> NbarDriver('terrain').translate_path_depr(ls8_dataset, Path('reflectance_terrain_7.bin'))
-        PosixPath('LS8_OLITIRS_TNBAR_P51_GALPGS01-032_101_078_20141012_B7.tif')
-        >>> # Should return None, as this is a BRDF driver instance.
-        >>> NbarDriver('brdf').translate_path_depr(ls8_dataset, Path('reflectance_terrain_7.bin'))
-        """
-        # Skip hidden files and envi headers. (envi files are converted to tif during copy)
-        if file_path.suffix != '.bin':
-            return None
-
-        if not self._file_is_pertinent(file_path):
-            return None
-
-        ga_label = self.get_ga_label(dataset)
-        band_number = self._read_band_number(file_path)
-
-        return file_path.with_name('%s_B%s.tif' % (ga_label, band_number))
 
     def file_whitelist(self):
         return [
@@ -682,9 +577,6 @@ class EODSDriver(DatasetDriver):
         """
         return None
 
-    def get_ga_label(self, dataset):
-        return dataset.ga_label
-
     def file_whitelist(self):
         return [
             ('scene01/*.tif', 'band', ''),
@@ -720,7 +612,7 @@ class EODSDriver(DatasetDriver):
         """
         super(EODSDriver, self).fill_metadata(dataset, path)
 
-        m = re.match(
+        fields = re.match(
             (
                 r"(?P<vehicle>LS[578])"
                 r"_(?P<instrument>OLI_TIRS|OLI|TIRS|TM|ETM)"
@@ -734,8 +626,7 @@ class EODSDriver(DatasetDriver):
                 r"(_(?P<version>[0-9]+))?"
                 "$"
             ),
-            path.stem)
-        fields = m.groupdict()
+            path.stem).groupdict()
 
         dataset.product_type = "eods_"+fields["type"]
         dataset.ga_level = fields["level"]
@@ -800,13 +691,6 @@ class PqaDriver(DatasetDriver):
     def expected_source(self):
         return NbarDriver('brdf')
 
-    def get_ga_label(self, dataset):
-        # Eg. 'LS8_OLI_TIRS_PQ_P55_GAPQ01-032_090_081_20140726'
-        return _fill_dataset_label(
-            dataset,
-            '{satnumber}_{sensor}_PQ_{galevel}_GAPQ01-{stationcode}_{path}_{rows}_{day}',
-        )
-
     def file_whitelist(self):
         return [
             ('*.tif', 'band', ''),
@@ -820,6 +704,10 @@ class PqaDriver(DatasetDriver):
         """
         super(PqaDriver, self).fill_metadata(dataset, path)
 
+        dataset.ga_label = _fill_dataset_label(
+            dataset,
+            '{satnumber}_{sensor}_PQ_{galevel}_GAPQ01-{stationcode}_{path}_{rows}_{day}',
+        )
         dataset.ga_level = 'P55'
 
         # Copy relevant fields from source nbar.
@@ -832,21 +720,6 @@ class PqaDriver(DatasetDriver):
 
         return dataset
 
-    def translate_path_depr(self, dataset, file_path):
-        """
-        :type dataset: ptype.DatasetMetadata
-        :type file_path: pathlib.Path
-        :return:
-        """
-        # Tif file will be renamed to contain the ga_label.
-        suffix = file_path.suffix.lower()
-        if '.tif' == suffix:
-            ga_label = self.get_ga_label(dataset)
-            return file_path.with_name(ga_label+suffix)
-        else:
-            # All other files are kept in the package (log files etc, if any).
-            return file_path
-
     def to_bands(self, path):
         """
         :type path: Path
@@ -857,9 +730,6 @@ class PqaDriver(DatasetDriver):
             return None
 
         return [ptype.BandMetadata(path=path, number='pqa')]
-
-    def browse_image_bands(self, d):
-        return 'pqa',
 
 
 PACKAGE_DRIVERS = {

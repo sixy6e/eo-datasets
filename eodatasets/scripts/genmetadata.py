@@ -41,20 +41,10 @@ def run(parent, debug, package_type, datasets):
         source_id = driver.expected_source().get_id()
         parent_datasets.update({source_id: serialise.read_dataset_metadata(Path(parent[0]))})
 
-
-
     for dataset_file in datasets:
         dataset_path = Path(dataset_file)
 
-        dataset = package.init_existing_dataset(dataset_path, driver, parent_datasets)
-        package.validate_metadata(dataset)
-        dataset = metadata.expand_common_metadata(dataset)
-        serialise.write_dataset_metadata(dataset_path, dataset)
-        continue
-        #serialise.write_yaml_metadata(dataset, 'out.yaml', dataset_path)
-
         md_path = package.package_inplace_dataset(
-            driver,
             package.init_existing_dataset(dataset_path, driver, parent_datasets),
             dataset_path
         )

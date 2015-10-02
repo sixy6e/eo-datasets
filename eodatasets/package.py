@@ -3,13 +3,11 @@ from __future__ import absolute_import
 import os
 import shutil
 import logging
-import time
 from subprocess import check_call
 import datetime
 import uuid
 import socket
 import copy
-from functools import partial
 
 from pathlib import Path
 
@@ -48,7 +46,6 @@ def init_locally_processed_dataset(directory, dataset_driver, source_datasets,
             source_datasets=source_datasets
         )
     )
-
     return dataset_driver.fill_metadata(md, directory)
 
 
@@ -127,42 +124,6 @@ def _copy_file(source_path, destination_path, compress_imagery=True, hard_link=F
     return destination_path.stat().st_size
 
 
-# def prepare_target_imagery(
-#         image_directory,
-#         package_directory,
-#         translate_path=lambda path: path,
-#         after_file_copy=lambda source_path, final_path: None,
-#         compress_imagery=True,
-#         hard_link=False):
-#     """
-#     Copy a directory of files if not already there. Possibly compress images.
-#
-#     :type translate_path: (Path) -> Path
-#     :type image_directory: Path
-#     :type package_directory: Path
-#     :type after_file_copy: Path -> None
-#     :type hard_link: bool
-#     :type compress_imagery: bool
-#     """
-#     if not package_directory.exists():
-#         package_directory.mkdir()
-#
-#     for source_path in image_directory.iterdir():
-#         # Skip hidden files
-#         if source_path.name.startswith('.'):
-#             continue
-#
-#         target_path = translate_path(source_path)
-#         if target_path is None:
-#             continue
-#
-#         target_path = ptype.rebase_path(image_directory, package_directory, target_path)
-#
-#         _copy_file(source_path, target_path, compress_imagery, hard_link=hard_link)
-#
-#         after_file_copy(source_path, target_path)
-
-
 class IncompletePackage(Exception):
     """
     Package is incomplete: (eg. Not enough metadata could be found.)
@@ -192,52 +153,22 @@ def validate_metadata(dataset):
         raise IncompletePackage('Incomplete dataset. Not enough metadata found: %r' % dataset)
 
 
-def expand_driver_metadata(dataset_driver, dataset, image_paths):
-    """
-    :type dataset_driver: eodatasets.drivers.DatasetDriver
-    :type dataset: ptype.DatasetMetadata
-    :type image_paths: list[Path]
-    :rtype: ptype.DatasetMetadata
-    :raises IncompletePackage:
-        Mot enough metadata can be extracted from the dataset.
-    """
-
-    #dataset.product_type = dataset_driver.get_id()
-    #dataset.ga_label = dataset_driver.get_ga_label(dataset)
-
-    #dataset.size_bytes = _file_size_bytes(*image_paths)
-
-    # if image_paths:
-    #     bands = [dataset_driver.to_band(dataset, path) for path in image_paths]
-    #
-    #     if bands:
-    #         if not dataset.image:
-    #             dataset.image = ptype.ImageMetadata()
-    #
-    #         dataset.image.bands = {band.number: band for band in bands if band}
-
-    return metadata.expand_common_metadata(dataset)
-
-
-def package_inplace_dataset(dataset_driver, dataset, image_path):
+def package_inplace_dataset(dataset, path):
     """
     Create a metadata file for the given dataset without modifying it.
 
-    :type dataset_driver: eodatasets.drivers.DatasetDriver
     :type dataset: ptype.Dataset
-    :type image_path: Path
+    :type path: Path
     :rtype: Path
     :return: Path to the created metadata file.
     """
-    typical_checksum_file = image_path.joinpath(GA_CHECKSUMS_FILE_NAME)
+    typical_checksum_file = path.joinpath(GA_CHECKSUMS_FILE_NAME)
     if typical_checksum_file.exists():
         dataset.checksum_path = typical_checksum_file
 
-    image_paths = list(image_path.iterdir()) if image_path.is_dir() else [image_path]
-
     validate_metadata(dataset)
-    dataset = expand_driver_metadata(dataset_driver, dataset, image_paths)
-    return serialise.write_dataset_metadata(image_path, dataset)
+    dataset = metadata.expand_common_metadata(dataset)
+    return serialise.write_dataset_metadata(path, dataset)
 
 
 def package_dataset(dataset,
@@ -306,12 +237,6 @@ def package_dataset(dataset,
     validate_metadata(dataset)
 
     # TODO: browse images
-    # create_dataset_browse_images(
-    #     dataset_driver,
-    #     dataset,
-    #     target_path,
-    #     after_file_creation=checksums.add_file
-    # )
 
     target_checksums_path = target_path / GA_CHECKSUMS_FILE_NAME
     dataset.checksum_path = target_checksums_path
