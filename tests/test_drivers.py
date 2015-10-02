@@ -103,6 +103,7 @@ _EXPECTED_NBAR = ptype.DatasetMetadata(
 _EXPECTED_PQA = ptype.DatasetMetadata(
     id_=UUID('c50c6bd4-e895-11e4-9814-1040f381a756'),
     ga_level='P55',
+    ga_label='LS8_OLITIRS_PQ_P55_GAPQ01-032_101_078_20141012',
     platform=ptype.PlatformMetadata(code='LANDSAT_8'),
     instrument=ptype.InstrumentMetadata(name='OLI_TIRS'),
     format_=ptype.FormatMetadata(name='GeoTIFF'),
@@ -164,69 +165,6 @@ class TestDrivers(TestCase):
         self.assertEqual(metadata.acquisition.aos, datetime.datetime(2015, 3, 30, 2, 25, 53, 346000))
         self.assertEqual(metadata.acquisition.los, datetime.datetime(2015, 3, 30, 2, 26, 57, 325000))
 
-    def test_raw_ls8_label(self):
-        metadata, raw_driver = self._get_raw_ls8()
-        self.assertEqual(
-            'LS8_OLITIRS_STD-MD_P00_LC81160740842015089ASA00_116_074-084_20150330T022553Z20150330T022657',
-            raw_driver.get_ga_label(metadata),
-        )
-
-    def test_raw_ls5_label(self):
-        self.assertEqual(
-            'LS5_TM_STD-RCC_P00_L5TB2005152015110ASA111_0_0_20050601T015110Z20050601T020025',
-            drivers.RawDriver().get_ga_label(_LS5_RAW)
-        )
-
-    def test_raw_ls7_label(self):
-        self.assertEqual(
-            'LS7_ETM_STD-RCC_P00_L7ET2005007020028ASA123_0_0_20050107T020028Z20050107T020719',
-            drivers.RawDriver().get_ga_label(_LS7_RAW)
-        )
-
-    def test_ortho_ls8_label(self):
-        self.assertEqual(
-            "LS8_OLITIRS_OTH_P51_GALPGS01-032_101_078_20141012",
-            drivers.OrthoDriver().get_ga_label(test_ls8.EXPECTED_OUT)
-        )
-
-    def test_ortho_ls7_label(self):
-        self.assertEqual(
-            "LS7_ETM_SYS_P31_GALPGS01-002_114_073_20050107",
-            drivers.OrthoDriver().get_ga_label(test_ls7_definitive.EXPECTED_OUT)
-        )
-
-    def test_ortho_ls5_label(self):
-        self.assertEqual(
-            "LS5_TM_OTH_P51_GALPGS01-002_113_063_20050601",
-            drivers.OrthoDriver().get_ga_label(test_ls5_definitive.EXPECTED_OUT)
-        )
-
-    def test_aqua_pds_label(self):
-        ds = ptype.DatasetMetadata(
-            id_=UUID('d083fa45-1edd-11e5-8f9e-1040f381a756'),
-            product_type='satellite_telemetry_data',
-            creation_dt=datetime.datetime(2015, 6, 11, 5, 51, 50),
-            platform=ptype.PlatformMetadata(code='AQUA'),
-            instrument=ptype.InstrumentMetadata(name='MODIS'),
-            format_=ptype.FormatMetadata(name='PDS'),
-            rms_string='S1A1C1D1R1',
-            acquisition=ptype.AcquisitionMetadata(
-                aos=datetime.datetime(2014, 8, 7, 3, 16, 28, 750910),
-                los=datetime.datetime(2014, 8, 7, 3, 16, 30, 228023),
-                platform_orbit=65208
-            ),
-            image=ptype.ImageMetadata(day_percentage_estimate=100.0),
-            lineage=ptype.LineageMetadata(
-                machine=ptype.MachineMetadata(),
-                source_datasets={}
-            )
-        )
-
-        self.assertEqual(
-            "AQUA_MODIS_STD-PDS_P00_65208.S1A1C1D1R1_0_0_20140807T031628Z20140807T031630",
-            drivers.RawDriver().get_ga_label(ds)
-        )
-
     def test_nbar_fill_metadata(self):
         input_folder = write_files({
             'reflectance_brdf_1.bin': '',
@@ -284,17 +222,6 @@ class TestDrivers(TestCase):
 
         #self.assert_same(_EXPECTED_NBAR, received_dataset)
 
-    def test_nbar_label(self):
-        self.assertEqual(
-            "LS8_OLITIRS_TNBAR_P54_GALPGS01-032_101_078_20141012",
-            drivers.NbarDriver('terrain').get_ga_label(_EXPECTED_NBAR)
-        )
-
-    def test_nbar_brdf_label(self):
-        self.assertEqual(
-            "LS8_OLITIRS_NBAR_P54_GALPGS01-032_101_078_20141012",
-            drivers.NbarDriver('brdf').get_ga_label(_EXPECTED_NBAR)
-        )
 
     def test_pqa_fill(self):
         input_folder = write_files({
@@ -314,57 +241,6 @@ class TestDrivers(TestCase):
 
         self.assert_same(_EXPECTED_PQA, received_dataset)
 
-    def test_pqa_label(self):
-        self.assertEqual(
-            "LS8_OLITIRS_PQ_P55_GAPQ01-032_101_078_20141012",
-            drivers.PqaDriver().get_ga_label(_EXPECTED_PQA)
-        )
-
-    # def test_pqa_translate_path(self):
-    #     input_folder = write_files({
-    #         'pqa.tif': '',
-    #         'process.log': '',
-    #         'passinfo': ''
-    #     })
-    #     self.assertEqual(
-    #         input_folder.joinpath('LS8_OLITIRS_PQ_P55_GAPQ01-032_101_078_20141012.tif'),
-    #         drivers.PqaDriver().translate_path(
-    #             _EXPECTED_PQA,
-    #             input_folder.joinpath('pqa.tif')
-    #         )
-    #     )
-    #     # Other files unchanged.
-    #     self.assertEqual(
-    #         input_folder.joinpath('process.log'),
-    #         drivers.PqaDriver().translate_path(
-    #             _EXPECTED_PQA,
-    #             input_folder.joinpath('process.log')
-    #         )
-    #     )
-    #     self.assertEqual(
-    #         input_folder.joinpath('passinfo'),
-    #         drivers.PqaDriver().translate_path(
-    #             _EXPECTED_PQA,
-    #             input_folder.joinpath('passinfo')
-    #         )
-    #     )
-
-    def test_default_landsat_bands(self):
-        # Default bands for each satellite.
-        d = drivers.OrthoDriver()
-        self.assertEqual(
-            ('7', '5', '2'),
-            d.browse_image_bands(test_ls8.EXPECTED_OUT)
-        )
-        self.assertEqual(
-            ('7', '4', '1'),
-            d.browse_image_bands(test_ls7_definitive.EXPECTED_OUT)
-        )
-        self.assertEqual(
-            ('7', '4', '1'),
-            d.browse_image_bands(test_ls5_definitive.EXPECTED_OUT)
-        )
-
     def test_pqa_to_band(self):
         input_folder = write_files({
             'pqa.tif': '',
@@ -381,10 +257,3 @@ class TestDrivers(TestCase):
         # Other files should not be bands.
         self.assertIsNone(drivers.PqaDriver().to_bands(input_folder.joinpath('process.log')))
         self.assertIsNone(drivers.PqaDriver().to_bands(input_folder.joinpath('passinfo')))
-
-    def test_pqa_defaults(self):
-        # A one-band browse image.
-        self.assertEqual(drivers.PqaDriver().browse_image_bands(_EXPECTED_PQA), ('pqa',))
-
-        self.assertEqual('pqa', drivers.PqaDriver().get_id())
-        self.assertEqual(drivers.NbarDriver('brdf'), drivers.PqaDriver().expected_source())

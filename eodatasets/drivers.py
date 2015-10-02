@@ -704,18 +704,19 @@ class PqaDriver(DatasetDriver):
         """
         super(PqaDriver, self).fill_metadata(dataset, path)
 
-        dataset.ga_label = _fill_dataset_label(
-            dataset,
-            '{satnumber}_{sensor}_PQ_{galevel}_GAPQ01-{stationcode}_{path}_{rows}_{day}',
-        )
         dataset.ga_level = 'P55'
+        dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 
         # Copy relevant fields from source nbar.
         if 'nbar_brdf' in dataset.lineage.source_datasets:
             ortho = dataset.lineage.source_datasets['nbar_brdf']
             borrow_single_sourced_fields(dataset, ortho)
 
-        dataset.format_ = ptype.FormatMetadata('GeoTIFF')
+        dataset.ga_label = _fill_dataset_label(
+            dataset,
+            '{satnumber}_{sensor}_PQ_{galevel}_GAPQ01-{stationcode}_{path}_{rows}_{day}',
+        )
+
         md_image.populate_from_image_metadata(dataset)
 
         return dataset
