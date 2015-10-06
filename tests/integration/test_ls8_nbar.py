@@ -101,6 +101,32 @@ def test_package():
                     'label': 'Alice Springs'
                 }
             },
+            'grid_spatial': {
+                'projection': {
+                    'geo_ref_points': {
+                        'ul': {
+                            'x': 644000.0,
+                            'y': 6283000.0
+                        },
+                        'ur': {
+                            'x': 644250.0,
+                            'y': 6283000.0
+                        },
+                        'll': {
+                            'x': 644000.0,
+                            'y': 6282750.0
+                        },
+                        'lr': {
+                            'x': 644250.0,
+                            'y': 6282750.0
+                        }
+                    },
+                    'datum': 'GDA94',
+                    'ellipsoid': 'GRS80',
+                    'zone': -55,
+                    'unit': 'Meter'
+                }
+            },
             'image': {
                 'satellite_ref_point_start': {'y': 79, 'x': 112},
                 'bands': {

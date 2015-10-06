@@ -46,7 +46,8 @@ def init_locally_processed_dataset(directory, dataset_driver, source_datasets,
             source_datasets=source_datasets
         )
     )
-    return dataset_driver.fill_metadata(md, directory)
+    md = dataset_driver.fill_metadata(md, directory)
+    return metadata.expand_common_metadata(md)
 
 
 def init_existing_dataset(directory, dataset_driver, source_datasets,
@@ -76,7 +77,8 @@ def init_existing_dataset(directory, dataset_driver, source_datasets,
 
         )
     )
-    return dataset_driver.fill_metadata(md, directory)
+    md = dataset_driver.fill_metadata(md, directory)
+    return metadata.expand_common_metadata(md)
 
 
 def _copy_file(source_path, destination_path, compress_imagery=True, hard_link=False):
@@ -167,7 +169,6 @@ def package_inplace_dataset(dataset, path):
         dataset.checksum_path = typical_checksum_file
 
     validate_metadata(dataset)
-    dataset = metadata.expand_common_metadata(dataset)
     return serialise.write_dataset_metadata(path, dataset)
 
 
@@ -218,15 +219,18 @@ def package_dataset(dataset,
         for _, band in dataset.image.bands.iteritems():
             source_path = band.path
             dest_path = source_path
-            # TODO: rename bands to <ga_label>_<band>.tif
+            # rename bands to <ga_label>_<band>.tif
             if source_path.suffix == ".bin":
-                dest_path = source_path.with_suffix(".tif")
+                dest_path = source_path.with_name(dataset.ga_label+"_B"+band.number+".tif")
+                dataset.ancillary_files.remove(ptype.AncillaryFile(type_='header', path=source_path.with_suffix('.hdr')))
             dest_path = ptype.rebase_path(image_path, package_directory, dest_path)
             _copy_file(source_path, dest_path, compress_imagery=True, hard_link=hard_link)
             after_file_copy(source_path, dest_path)
             band.path = dest_path
 
-    if dataset.ancillary_files:
+    if not dataset.ancillary_files:
+        dataset.ancillary_files = None
+    else:
         for file_ in dataset.ancillary_files:
             source_path = file_.path
             dest_path = ptype.rebase_path(image_path, package_directory, source_path)
@@ -236,7 +240,8 @@ def package_dataset(dataset,
 
     validate_metadata(dataset)
 
-    # TODO: browse images
+    # browse images
+    create_dataset_browse_images(dataset, target_path, after_file_creation=checksums.add_file)
 
     target_checksums_path = target_path / GA_CHECKSUMS_FILE_NAME
     dataset.checksum_path = target_checksums_path

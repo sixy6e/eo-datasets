@@ -45,7 +45,7 @@ class DatasetDriver(object):
                 if type_ == "band":
                     return self.to_bands(path)
                 else:
-                    return [ptype.AncillaryFile(type_, path, description)]
+                    return [ptype.AncillaryFile(type_, path, description or None)]
         return []
 
     def fill_metadata(self, dataset, dataset_path):
@@ -59,6 +59,7 @@ class DatasetDriver(object):
 
         image_bands = []
         ancillary_files = []
+        # TODO: dataset.size_bytes = dataset.size_bytes or 0
 
         for root, dirs, files in os.walk(str(dataset_path)):
             for path in files:
@@ -368,7 +369,7 @@ class RawDriver(DatasetDriver):
         dataset = pds.extract_md(dataset, path)
         dataset = npphdf5.extract_md(dataset, path)
 
-        dataset.product_type = "RAW"
+        dataset.product_type = "satellite_telemetry_data"
         dataset.ga_label = self.get_ga_label(dataset)
 
         # TODO: Antenna coords for groundstation? Heading?
@@ -524,6 +525,7 @@ class NbarDriver(DatasetDriver):
     def file_whitelist(self):
         return [
             ('reflectance_'+self.subset_name+'_*.bin', 'band', ''),
+            ('reflectance_'+self.subset_name+'_*.hdr', 'header', ''),
         ]
 
     def to_bands(self, path):
@@ -628,7 +630,7 @@ class EODSDriver(DatasetDriver):
             ),
             path.stem).groupdict()
 
-        dataset.product_type = "eods_"+fields["type"]
+        dataset.product_type = "EODS_"+fields["type"]
         dataset.ga_level = fields["level"]
         dataset.ga_label = path.stem
         dataset.format_ = ptype.FormatMetadata(name='GeoTiff')
@@ -655,6 +657,9 @@ class EODSDriver(DatasetDriver):
             if _station["eods_domain_code"] == fields["groundstation"]:
                 dataset.acquisition.groundstation = ptype.GroundstationMetadata(code=_station["code"])
                 break
+
+        if not dataset.extent:
+            dataset.extent = ptype.ExtentMetadata()
 
         def els2date(els, fmt):
             if not els:

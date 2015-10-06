@@ -76,7 +76,7 @@ def test_metadata():
             'creation_dt': datetime.datetime.utcfromtimestamp(source_dataset.stat().st_ctime),
             'platform': {'code': 'LANDSAT_5'},
             'format': {'version': 0, 'name': 'RCC'},
-            'size_bytes': 226667,
+            # 'size_bytes': 226667,
             'product_type': 'satellite_telemetry_data',
             'usgs': {
                 'interval_id': 'L5TB2011240002022ASA123'
@@ -102,9 +102,17 @@ def test_metadata():
                 'machine': {},
                 'source_datasets': {}
             },
-            'image': {
-                'bands': {}
-            }
+            #'image': {
+            #    'bands': {}
+            #},
+            'ancillary_files': [
+                {'path': 'product/ref.log', 'type': 'log', 'description': ''},
+                {'path': 'product/ephem.log', 'type': 'log', 'description': ''},
+                {'path': 'product/passinfo', 'type': 'passinfo', 'description': ''},
+                {'path': 'product/L5TB2011240002022ASA123I00.data', 'type': 'rcc', 'description': ''},
+                {'path': 'product/acs.log', 'type': 'log', 'description': ''},
+                {'path': 'product/demod.log', 'type': 'log', 'description': ''}
+            ]
         }
     )
 

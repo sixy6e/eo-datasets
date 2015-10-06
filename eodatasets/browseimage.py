@@ -214,15 +214,24 @@ def _create_thumbnail(red_file, green_file, blue_file, thumb_image,
     return x_constraint, outrows, outresx
 
 
-def create_typical_browse_metadata(dataset_driver, dataset, destination_directory):
+def create_typical_browse_metadata(dataset, destination_directory):
     """
     Create browse metadata.
-    :type dataset_driver: eodatasets.package.DatasetDriver
     :type dataset: ptype.DatasetMetadata
     :type destination_directory: Path
     :return:
     """
-    rgb_bands = dataset_driver.browse_image_bands(dataset)
+
+    if dataset.product_type == 'pqa':
+        rgb_bands = ['pqa']
+    else:
+        _satellite_browse_bands = {
+            'LANDSAT_5': ('7', '4', '1'),
+            'LANDSAT_7': ('7', '4', '1'),
+            'LANDSAT_8': ('7', '5', '2'),
+        }
+        rgb_bands = _satellite_browse_bands.get(dataset.platform.code)
+
     if len(rgb_bands) == 3:
         r, g, b = rgb_bands
     elif len(rgb_bands) == 1:
@@ -254,7 +263,6 @@ def create_typical_browse_metadata(dataset_driver, dataset, destination_director
 
 
 def create_dataset_browse_images(
-        dataset_driver,
         dataset,
         target_directory,
         after_file_creation=lambda file_path: None):
@@ -272,7 +280,7 @@ def create_dataset_browse_images(
 
     # Create browse image metadata if missing.
     if not dataset.browse:
-        create_typical_browse_metadata(dataset_driver, dataset, target_directory)
+        create_typical_browse_metadata(dataset, target_directory)
 
     # Create browse images based on the metadata.
     for browse_id, browse_metadata in dataset.browse.items():
@@ -317,12 +325,9 @@ def regenerate_browse_image(dataset_directory):
     """
     dataset_metadata = serialise.read_dataset_metadata(dataset_directory)
 
-    product_type = dataset_metadata.product_type
-    dataset_driver = drivers.PACKAGE_DRIVERS[product_type]
-
     # Clear existing browse metadata, so we can create updated info.
     dataset_metadata.browse = None
 
-    dataset_metadata = create_dataset_browse_images(dataset_driver, dataset_metadata, dataset_directory)
+    dataset_metadata = create_dataset_browse_images(dataset_metadata, dataset_directory)
 
     serialise.write_dataset_metadata(dataset_directory, dataset_metadata)

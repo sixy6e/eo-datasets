@@ -71,7 +71,7 @@ lr=Coord(lat=136.25997551867962, lon=-26.990662556011216)\
 
     def _reproject_point(p):
         x, y, height = transform.TransformPoint(p.x, p.y)
-        return ptype.Coord(x, y)
+        return ptype.Coord(lon=x, lat=y)
 
     return _map_polygon(_reproject_point, coords)
 
@@ -107,6 +107,7 @@ def populate_from_image_metadata(md):
         i = gdal.Open(str(band.path))
 
         if not i:
+            print "cant open", str(band.path)
             # TODO: log? throw?
             continue
         spacial_ref = osr.SpatialReference(i.GetProjectionRef())

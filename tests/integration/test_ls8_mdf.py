@@ -77,7 +77,7 @@ def test_metadata():
                     '20150503T031224Z20150503T031438',
         # Default creation date is the same as the input folder ctime.
         'creation_dt': datetime.datetime.utcfromtimestamp(source_dataset.stat().st_ctime),
-        'size_bytes': 4485,
+        # 'size_bytes': 4485,
         'product_type': 'satellite_telemetry_data',
         'usgs':  {
             'interval_id': 'LC81140740812015123LGN00'
@@ -102,12 +102,19 @@ def test_metadata():
         'image': {
             'satellite_ref_point_start': {'x': 114, 'y': 74},
             'satellite_ref_point_end': {'x': 114, 'y': 81},
-            'bands': {},
+            # 'bands': {},
         },
         'lineage': {
             'source_datasets': {},
             'machine': {}
-        }
+        },
+        'ancillary_files': [{'path': 'product/270.000.2015123031324364.LGS', 'type': 'other', 'description': ''},
+                            {'path': 'product/271.003.2015123031438105.LGS', 'type': 'other', 'description': ''},
+                            {'path': 'product/271.001.2015123031352904.LGS', 'type': 'other', 'description': ''},
+                            {'path': 'product/LC81140740812015123LGN00_IDF.xml', 'type': 'other', 'description': ''},
+                            {'path': 'product/271.000.2015123031330204.LGS', 'type': 'other', 'description': ''},
+                            {'path': 'product/LC81140740812015123LGN00_MD5.txt', 'type': 'other', 'description': ''},
+                            {'path': 'product/271.002.2015123031415490.LGS', 'type': 'other', 'description': ''}]
     })
 
     # Check all files are listed in checksum file.

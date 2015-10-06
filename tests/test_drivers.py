@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 import datetime
+import copy
 from uuid import UUID
 
 from pathlib import Path
@@ -77,6 +78,8 @@ _LS7_RAW = ptype.DatasetMetadata(
 _EXPECTED_NBAR = ptype.DatasetMetadata(
     id_=UUID('c50c6bd4-e895-11e4-9814-1040f381a756'),
     ga_level='P54',
+    ga_label='LS8_OLITIRS_TNBAR_P54_GALPGS01-032_101_078_20141012',
+    product_type='nbar_terrain',
     platform=ptype.PlatformMetadata(code='LANDSAT_8'),
     instrument=ptype.InstrumentMetadata(name='OLI_TIRS'),
     format_=ptype.FormatMetadata(name='GeoTIFF'),
@@ -165,50 +168,62 @@ class TestDrivers(TestCase):
         self.assertEqual(metadata.acquisition.aos, datetime.datetime(2015, 3, 30, 2, 25, 53, 346000))
         self.assertEqual(metadata.acquisition.los, datetime.datetime(2015, 3, 30, 2, 26, 57, 325000))
 
+    def test_eods_fill_metadata(self):
+        dataset_folder = "LS8_OLI_TIRS_NBAR_P54_GANBAR01-015_101_078_20141012"
+        bandname = '10'
+        bandfile = dataset_folder+'_B'+bandname+'.tif'
+        input_folder = write_files({
+            dataset_folder: {
+                'metadata.xml': """<EODS_DATASET>
+                <ACQUISITIONINFORMATION>
+                <EVENT>
+                <AOS>20141012T03:23:36</AOS>
+                <LOS>20141012T03:29:10</LOS>
+                </EVENT>
+                </ACQUISITIONINFORMATION>
+                <EXEXTENT>
+                <TEMPORALEXTENTFROM>20141012 00:55:54</TEMPORALEXTENTFROM>
+                <TEMPORALEXTENTTO>20141012 00:56:18</TEMPORALEXTENTTO>
+                </EXEXTENT>
+                </EODS_DATASET>""",
+                'scene01': {
+                    bandfile: ''
+                }
+            }
+        })
+        expected = ptype.DatasetMetadata(
+            id_=_EXPECTED_NBAR.id_,
+            ga_label=dataset_folder,
+            ga_level='P54',
+            product_type='EODS_NBAR',
+            platform=ptype.PlatformMetadata(code='LANDSAT_8'),
+            instrument=ptype.InstrumentMetadata(name='OLI_TIRS'),
+            format_=ptype.FormatMetadata(name='GeoTiff'),
+            acquisition=ptype.AcquisitionMetadata(aos=datetime.datetime(2014, 10, 12, 3, 23, 36),
+                                                  los=datetime.datetime(2014, 10, 12, 3, 29, 10),
+                                                  groundstation=ptype.GroundstationMetadata(code='LGS')),
+            extent=ptype.ExtentMetadata(center_dt=datetime.datetime(2014, 10, 12, 0, 56, 6)),
+            image=ptype.ImageMetadata(satellite_ref_point_start=ptype.Point(x=101, y=78),
+                                      satellite_ref_point_end=ptype.Point(x=101, y=78),
+                                      bands={bandname: ptype.BandMetadata(number=bandname,
+                                                                    path=Path(input_folder, dataset_folder,
+                                                                              'scene01', bandfile))}),
+            ancillary_files=[ptype.AncillaryFile(type_='xml', path=Path(input_folder, dataset_folder, 'metadata.xml'))]
+        )
+        dataset = ptype.DatasetMetadata(
+            id_=_EXPECTED_NBAR.id_
+        )
+        received = drivers.EODSDriver().fill_metadata(dataset, input_folder.joinpath(dataset_folder))
+        self.assertEqual(expected, received)
+
     def test_nbar_fill_metadata(self):
         input_folder = write_files({
             'reflectance_brdf_1.bin': '',
-            'reflectance_brdf_1.bin.aux.xml': '',
             'reflectance_brdf_1.hdr': '',
-            'reflectance_brdf_2.bin': '',
-            'reflectance_brdf_2.bin.aux.xml': '',
-            'reflectance_brdf_2.hdr': '',
-            'reflectance_brdf_3.bin': '',
-            'reflectance_brdf_3.bin.aux.xml': '',
-            'reflectance_brdf_3.hdr': '',
-            'reflectance_brdf_4.bin': '',
-            'reflectance_brdf_4.bin.aux.xml': '',
-            'reflectance_brdf_4.hdr': '',
-            'reflectance_brdf_5.bin': '',
-            'reflectance_brdf_5.bin.aux.xml': '',
-            'reflectance_brdf_5.hdr': '',
-            'reflectance_brdf_6.bin': '',
-            'reflectance_brdf_6.bin.aux.xml': '',
-            'reflectance_brdf_6.hdr': '',
-            'reflectance_brdf_7.bin': '',
-            'reflectance_brdf_7.bin.aux.xml': '',
-            'reflectance_brdf_7.hdr': '',
+            'reflectance_brdf_1.bin.aux.xml': '',
             'reflectance_terrain_1.bin': '',
             'reflectance_terrain_1.bin.aux.xml': '',
             'reflectance_terrain_1.hdr': '',
-            'reflectance_terrain_2.bin': '',
-            'reflectance_terrain_2.bin.aux.xml': '',
-            'reflectance_terrain_2.hdr': '',
-            'reflectance_terrain_3.bin': '',
-            'reflectance_terrain_3.bin.aux.xml': '',
-            'reflectance_terrain_3.hdr': '',
-            'reflectance_terrain_4.bin': '',
-            'reflectance_terrain_4.bin.aux.xml': '',
-            'reflectance_terrain_4.hdr': '',
-            'reflectance_terrain_5.bin': '',
-            'reflectance_terrain_5.bin.aux.xml': '',
-            'reflectance_terrain_5.hdr': '',
-            'reflectance_terrain_6.bin': '',
-            'reflectance_terrain_6.bin.aux.xml': '',
-            'reflectance_terrain_6.hdr': '',
-            'reflectance_terrain_7.bin': '',
-            'reflectance_terrain_7.bin.aux.xml': '',
-            'reflectance_terrain_7.hdr': '',
         })
         dataset = ptype.DatasetMetadata(
             id_=_EXPECTED_NBAR.id_,
@@ -218,14 +233,20 @@ class TestDrivers(TestCase):
                 }
             )
         )
-        received_dataset = drivers.NbarDriver('terrain').fill_metadata(dataset, input_folder)
-
-        #self.assert_same(_EXPECTED_NBAR, received_dataset)
+        expected = copy.deepcopy(_EXPECTED_NBAR)
+        expected.image.bands = {
+            '1': ptype.BandMetadata(number='1', path=Path(input_folder, 'reflectance_terrain_1.bin'))
+        }
+        expected.ancillary_files = [
+            ptype.AncillaryFile(type_='header', path=Path(input_folder, 'reflectance_terrain_1.hdr'))
+        ]
+        received = drivers.NbarDriver('terrain').fill_metadata(dataset, input_folder)
+        self.assert_same(expected, received)
 
 
     def test_pqa_fill(self):
         input_folder = write_files({
-            #'pqa.tif': ''
+            'band.tif': ''
         })
 
         dataset = ptype.DatasetMetadata(
@@ -237,9 +258,14 @@ class TestDrivers(TestCase):
             )
         )
 
-        received_dataset = drivers.PqaDriver().fill_metadata(dataset, input_folder)
+        expected = copy.deepcopy(_EXPECTED_PQA)
+        expected.image.bands = {
+            'pqa': ptype.BandMetadata(number='pqa', path=Path(input_folder, 'band.tif'))
+        }
 
-        self.assert_same(_EXPECTED_PQA, received_dataset)
+        received = drivers.PqaDriver().fill_metadata(dataset, input_folder)
+
+        self.assert_same(expected, received)
 
     def test_pqa_to_band(self):
         input_folder = write_files({

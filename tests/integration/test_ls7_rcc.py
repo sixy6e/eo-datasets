@@ -74,7 +74,7 @@ def test_metadata():
 
     assert_same(md, {
         'id': None,
-        'size_bytes': 164368,
+        # 'size_bytes': 164368,
         'platform': {'code': 'LANDSAT_7'},
         'instrument': {
             'operation_mode': 'BUMPER',
@@ -100,11 +100,18 @@ def test_metadata():
             'los': datetime.datetime(2011, 8, 27, 2, 17, 7),
             'platform_orbit': 65771
         },
-        'image': {'bands': {}},
+        # 'image': {'bands': {}},
         'lineage': {
             'source_datasets': {},
             'machine': {}
         },
+        'ancillary_files': [{'path': 'product/ref.log', 'type': 'log', 'description': ''},
+                            {'path': 'product/ephem.log', 'type': 'log', 'description': ''},
+                            {'path': 'product/L7EB2011239021036ASA111Q.data', 'type': 'other', 'description': ''},
+                            {'path': 'product/passinfo', 'type': 'passinfo', 'description': ''},
+                            {'path': 'product/acs.log', 'type': 'log', 'description': ''},
+                            {'path': 'product/L7EB2011239021036ASA111I.data', 'type': 'rcc', 'description': ''},
+                            {'path': 'product/demod.log', 'type': 'log', 'description': ''}],
         'checksum_path': 'package.sha1'
     })
 
