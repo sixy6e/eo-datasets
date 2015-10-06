@@ -82,12 +82,12 @@ def test_package():
         'product_type': 'ortho',
         'ga_label': 'LS8_OLITIRS_OTH_P51_GALPGS01-002_112_079_20140126',
         'checksum_path': 'package.sha1',
-        'size_bytes': 258695,
+        # 'size_bytes': 258695,
         'instrument': {'name': 'OLI_TIRS'},
         'usgs': {
             'scene_id': 'LC81120792014026ASA00'
         },
-        'format': {'name': 'GEOTIFF'},
+        'format': {'name': 'GeoTiff'},
         # Creation date comes from the MTL.
         'creation_dt': datetime.datetime(2015, 4, 7, 0, 58, 8),
         'platform': {'code': 'LANDSAT_8'},
@@ -96,10 +96,10 @@ def test_package():
             {
                 'coord':
                     {
-                        'll': {'lat': -28.49412, 'lon': 116.58121},
-                        'ul': {'lat': -26.37259, 'lon': 116.58914},
-                        'ur': {'lat': -26.36025, 'lon': 118.92432},
-                        'lr': {'lat': -28.48062, 'lon': 118.96145}
+                        'll': {'lat': -26.938346595381017, 'lon': 117.21658239603924},
+                        'ul': {'lat': -26.93721801908416, 'lon': 117.21658023973296},
+                        'ur': {'lat': -26.937216080871572, 'lon': 117.21783941985618},
+                        'lr': {'lat': -26.93834465707431, 'lon': 117.2178415886988}
                     },
                 'center_dt': datetime.datetime(2014, 1, 26, 2, 5, 23, 126373)
             },
@@ -113,6 +113,7 @@ def test_package():
                             'number': '8',
                             'type': 'panchromatic',
                             'cell_size': 12.5,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Panchromatic',
                             'path': 'product/LC81120792014026ASA00_B8.TIF'
                         },
@@ -121,6 +122,7 @@ def test_package():
                             'number': '2',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Visible Blue',
                             'path': 'product/LC81120792014026ASA00_B2.TIF'
                         },
@@ -129,6 +131,7 @@ def test_package():
                             'number': '7',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Short-wave Infrared 2',
                             'path': 'product/LC81120792014026ASA00_B7.TIF'
                         },
@@ -136,6 +139,7 @@ def test_package():
                             'number': 'qa',
                             'type': 'quality',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Quality',
                             'path': 'product/LC81120792014026ASA00_BQA.TIF'
                         },
@@ -143,6 +147,7 @@ def test_package():
                             'number': '3',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Visible Green',
                             'path': 'product/LC81120792014026ASA00_B3.TIF'
                         },
@@ -150,6 +155,7 @@ def test_package():
                             'number': '9',
                             'type': 'atmosphere',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Cirrus',
                             'path': 'product/LC81120792014026ASA00_B9.TIF'
                         },
@@ -158,6 +164,7 @@ def test_package():
                             'number': '6',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Short-wave Infrared 1',
                             'path': 'product/LC81120792014026ASA00_B6.TIF'
                         },
@@ -166,6 +173,7 @@ def test_package():
                             'number': '11',
                             'type': 'thermal',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Thermal Infrared 2',
                             'path': 'product/LC81120792014026ASA00_B11.TIF'
                         },
@@ -174,6 +182,7 @@ def test_package():
                             'number': '5',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Near Infrared',
                             'path': 'product/LC81120792014026ASA00_B5.TIF'
                         },
@@ -182,6 +191,7 @@ def test_package():
                             'number': '4',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Visible Red',
                             'path': 'product/LC81120792014026ASA00_B4.TIF'
                         },
@@ -190,6 +200,7 @@ def test_package():
                             'number': '10',
                             'type': 'thermal',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Thermal Infrared 1',
                             'path': 'product/LC81120792014026ASA00_B10.TIF'
                         },
@@ -197,6 +208,7 @@ def test_package():
                             'number': '1',
                             'type': 'reflective',
                             'cell_size': 25.0,
+                            'shape': {'y': 10, 'x': 10},
                             'label': 'Coastal Aerosol',
                             'path': 'product/LC81120792014026ASA00_B1.TIF'
                         }
@@ -213,20 +225,20 @@ def test_package():
         'grid_spatial': {
             'projection': {
                 'zone': -50,
+                'unit': 'metre',
                 'ellipsoid': 'GRS80',
                 'map_projection': 'UTM',
                 'orientation': 'NORTH_UP',
                 'datum': 'GDA94',
                 'resampling_option': 'CUBIC_CONVOLUTION',
                 'geo_ref_points': {
-                    'll': {'x': 459012.5, 'y': 6847987.5},
-                    'ul': {'x': 459012.5, 'y': 7082987.5},
-                    'ur': {'x': 692012.5, 'y': 7082987.5},
-                    'lr': {'x': 692012.5, 'y': 6847987.5}
+                    'll': {'x': 521500.000, 'y': 7020375.000},
+                    'ul': {'x': 521500.000, 'y': 7020500.000},
+                    'ur': {'x': 521625.000, 'y': 7020500.000},
+                    'lr': {'x': 521625.000, 'y': 7020375.000}
                 }
             }
         },
-
         'acquisition':
             {
                 'groundstation': {
@@ -255,6 +267,11 @@ def test_package():
                 'blue_band': '2'
             }
         },
+        'ancillary_files': [
+            {'path': 'product/LO8_20140126_112_079_L1T.xml', 'type': 'other'},
+            {'path': 'product/LC81120792014026ASA00_GCP.txt', 'type': 'other'},
+            {'path': 'product/LC81120792014026ASA00_MTL.txt', 'type': 'mtl'},
+        ],
         'lineage':
             {
                 'machine': {},

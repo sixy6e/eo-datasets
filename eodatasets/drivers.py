@@ -390,8 +390,10 @@ class OrthoDriver(DatasetDriver):
 
     def file_whitelist(self):
         return [
-            ('*.tif', 'band', ''),
-            ('*_MTL.txt', 'mtl', '')
+            ('*.TIF', 'band', ''),
+            ('*_MTL.txt', 'mtl', ''),
+            ('*_GCP.txt', 'other', ''),
+            ('*_L1T.xml', 'other', '')
         ]
 
     def fill_metadata(self, dataset, path):
@@ -408,7 +410,7 @@ class OrthoDriver(DatasetDriver):
 
         md_image.populate_from_image_metadata(dataset)
 
-        dataset.product_type = "ORTHO"
+        dataset.product_type = "ortho"
         dataset.format_ = ptype.FormatMetadata("GeoTiff")
         dataset.ga_label = _fill_dataset_label(dataset,
                                    '{satnumber}_{sensor}_{level}_{galevel}_GALPGS01-{stationcode}_{path}_{rows}_{day}'
@@ -709,6 +711,7 @@ class PqaDriver(DatasetDriver):
         """
         super(PqaDriver, self).fill_metadata(dataset, path)
 
+        dataset.product_type = 'pqa'
         dataset.ga_level = 'P55'
         dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 

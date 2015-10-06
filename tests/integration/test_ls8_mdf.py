@@ -108,13 +108,13 @@ def test_metadata():
             'source_datasets': {},
             'machine': {}
         },
-        'ancillary_files': [{'path': 'product/270.000.2015123031324364.LGS', 'type': 'other', 'description': ''},
-                            {'path': 'product/271.003.2015123031438105.LGS', 'type': 'other', 'description': ''},
-                            {'path': 'product/271.001.2015123031352904.LGS', 'type': 'other', 'description': ''},
-                            {'path': 'product/LC81140740812015123LGN00_IDF.xml', 'type': 'other', 'description': ''},
-                            {'path': 'product/271.000.2015123031330204.LGS', 'type': 'other', 'description': ''},
-                            {'path': 'product/LC81140740812015123LGN00_MD5.txt', 'type': 'other', 'description': ''},
-                            {'path': 'product/271.002.2015123031415490.LGS', 'type': 'other', 'description': ''}]
+        'ancillary_files': [{'path': 'product/270.000.2015123031324364.LGS', 'type': 'other'},
+                            {'path': 'product/271.003.2015123031438105.LGS', 'type': 'other'},
+                            {'path': 'product/271.001.2015123031352904.LGS', 'type': 'other'},
+                            {'path': 'product/LC81140740812015123LGN00_IDF.xml', 'type': 'other'},
+                            {'path': 'product/271.000.2015123031330204.LGS', 'type': 'other'},
+                            {'path': 'product/LC81140740812015123LGN00_MD5.txt', 'type': 'other'},
+                            {'path': 'product/271.002.2015123031415490.LGS', 'type': 'other'}]
     })
 
     # Check all files are listed in checksum file.

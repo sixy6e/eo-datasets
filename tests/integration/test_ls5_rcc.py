@@ -106,12 +106,12 @@ def test_metadata():
             #    'bands': {}
             #},
             'ancillary_files': [
-                {'path': 'product/ref.log', 'type': 'log', 'description': ''},
-                {'path': 'product/ephem.log', 'type': 'log', 'description': ''},
-                {'path': 'product/passinfo', 'type': 'passinfo', 'description': ''},
-                {'path': 'product/L5TB2011240002022ASA123I00.data', 'type': 'rcc', 'description': ''},
-                {'path': 'product/acs.log', 'type': 'log', 'description': ''},
-                {'path': 'product/demod.log', 'type': 'log', 'description': ''}
+                {'path': 'product/ref.log', 'type': 'log'},
+                {'path': 'product/ephem.log', 'type': 'log'},
+                {'path': 'product/passinfo', 'type': 'passinfo'},
+                {'path': 'product/L5TB2011240002022ASA123I00.data', 'type': 'rcc'},
+                {'path': 'product/acs.log', 'type': 'log'},
+                {'path': 'product/demod.log', 'type': 'log'}
             ]
         }
     )

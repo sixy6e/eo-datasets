@@ -72,20 +72,29 @@ def test_package():
             'ga_label': 'LS8_OLITIRS_PQ_P55_GAPQ01-032_090_081_20140726',
             'checksum_path': 'package.sha1',
             'id': None,
-            'size_bytes': 2831,
+            # 'size_bytes': 2831,
             'ga_level': 'P55',
             'platform': {'code': 'LANDSAT_8'},
             'instrument': {'name': 'OLI_TIRS'},
             'product_type': 'pqa',
             # Default creation date is the same as the input folder ctime.
             'creation_dt': datetime.datetime.utcfromtimestamp(source_dataset.stat().st_ctime),
-            'extent': {
-                'center_dt': datetime.datetime(2014, 7, 26, 23, 49, 0, 343853),
-                'coord': {
-                    'll': {'lat': -31.33333, 'lon': 149.78434},
-                    'lr': {'lat': -31.37116, 'lon': 152.20094},
-                    'ul': {'lat': -29.23394, 'lon': 149.85216},
-                    'ur': {'lat': -29.26873, 'lon': 152.21782}
+            'extent': {'coord': {'ul': {'lat': -30.385422920776673, 'lon': 151.11617918777796},
+                                 'll': {'lat': -30.394442098774935, 'lon': 151.1160060752907},
+                                 'lr': {'lat': -30.394591787836983, 'lon': 151.12641019482155},
+                                 'ur': {'lat': -30.385572556126515, 'lon': 151.12658235268387}},
+                       'center_dt': datetime.datetime(2014, 7, 26, 23, 49, 0, 343853)},
+            'grid_spatial': {
+                'projection': {
+                    'ellipsoid': 'GRS80',
+                    'geo_ref_points': {'ul': {'y': 6637000.0, 'x': 319000.0},
+                                       'll': {'y': 6636000.0, 'x': 319000.0},
+                                       'lr': {'y': 6636000.0, 'x': 320000.0},
+                                       'ur': {'y': 6637000.0, 'x': 320000.0}
+                                       },
+                    'datum': 'GDA94',
+                    'zone': -56,
+                    'unit': 'metre'
                 }
             },
             'image': {
@@ -93,7 +102,9 @@ def test_package():
                 'bands': {
                     'pqa': {
                         'path': 'product/LS8_OLITIRS_PQ_P55_GAPQ01-032_090_081_20140726.tif',
-                        'number': 'pqa'
+                        'number': 'pqa',
+                        'shape': {'y': 40, 'x': 40},
+                        'cell_size': {'y': 25.0, 'x': 25.0}
                     }
                 }
             },

@@ -79,7 +79,7 @@ def test_package():
             'checksum_path': 'package.sha1',
             'ga_label': 'LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126',
             'ga_level': 'P54',
-            'size_bytes': 4550,
+            # 'size_bytes': 4550,
             'platform': {'code': 'LANDSAT_8'},
             # Default creation date is the same as the input folder ctime.
             'creation_dt': datetime.datetime.utcfromtimestamp(source_dataset.stat().st_ctime),
@@ -88,10 +88,10 @@ def test_package():
             'extent': {
                 'center_dt': datetime.datetime(2014, 1, 26, 2, 5, 23, 126373),
                 'coord': {
-                    'ul': {'lat': -26.37259, 'lon': 116.58914},
-                    'lr': {'lat': -28.48062, 'lon': 118.96145},
-                    'ur': {'lat': -26.36025, 'lon': 118.92432},
-                    'll': {'lat': -28.49412, 'lon': 116.58121}
+                    'ul': {'lat': -33.58299852409184, 'lon': 148.5517062155738},
+                    'lr': {'lat': -33.58521876956057, 'lon': 148.55443971109995},
+                    'ur': {'lat': -33.58296471969599, 'lon': 148.55439928544268},
+                    'll': {'lat': -33.58525257682599, 'lon': 148.55174657126028}
                 }
             },
             'acquisition': {
@@ -135,49 +135,56 @@ def test_package():
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B4.tif',
                         'label': 'Visible Red',
-                        'number': '4'
+                        'number': '4',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '6': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B6.tif',
                         'label': 'Short-wave Infrared 1',
-                        'number': '6'
+                        'number': '6',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '1': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B1.tif',
                         'label': 'Coastal Aerosol',
-                        'number': '1'
+                        'number': '1',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '2': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B2.tif',
                         'label': 'Visible Blue',
-                        'number': '2'
+                        'number': '2',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '3': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B3.tif',
                         'label': 'Visible Green',
-                        'number': '3'
+                        'number': '3',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '5': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B5.tif',
                         'label': 'Near Infrared',
-                        'number': '5'
+                        'number': '5',
+                        'shape': {'y': 10, 'x': 10}
                     },
                     '7': {
                         'type': 'reflective',
                         'cell_size': 25.0,
                         'path': 'product/LS8_OLITIRS_NBAR_P54_GALPGS01-002_112_079_20140126_B7.tif',
                         'label': 'Short-wave Infrared 2',
-                        'number': '7'
+                        'number': '7',
+                        'shape': {'y': 10, 'x': 10}
                     }
                 }
             },

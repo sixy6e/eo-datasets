@@ -108,7 +108,7 @@ def test_metadata():
             'instrument': {'name': 'MODIS'},
             'ga_label': 'AQUA_MODIS_STD-PDS_P00_65208.S1A1C1D1R1_0_0_20140807T031628Z20140807T031630',
             'platform': {'code': 'AQUA'},
-            'size_bytes': 2144280,
+            # 'size_bytes': 2144280,
             'checksum_path': 'package.sha1',
             'id': None,
             'acquisition': {

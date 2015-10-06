@@ -105,13 +105,13 @@ def test_metadata():
             'source_datasets': {},
             'machine': {}
         },
-        'ancillary_files': [{'path': 'product/ref.log', 'type': 'log', 'description': ''},
-                            {'path': 'product/ephem.log', 'type': 'log', 'description': ''},
-                            {'path': 'product/L7EB2011239021036ASA111Q.data', 'type': 'other', 'description': ''},
-                            {'path': 'product/passinfo', 'type': 'passinfo', 'description': ''},
-                            {'path': 'product/acs.log', 'type': 'log', 'description': ''},
-                            {'path': 'product/L7EB2011239021036ASA111I.data', 'type': 'rcc', 'description': ''},
-                            {'path': 'product/demod.log', 'type': 'log', 'description': ''}],
+        'ancillary_files': [{'path': 'product/ref.log', 'type': 'log'},
+                            {'path': 'product/ephem.log', 'type': 'log'},
+                            {'path': 'product/L7EB2011239021036ASA111Q.data', 'type': 'other'},
+                            {'path': 'product/passinfo', 'type': 'passinfo'},
+                            {'path': 'product/acs.log', 'type': 'log'},
+                            {'path': 'product/L7EB2011239021036ASA111I.data', 'type': 'rcc'},
+                            {'path': 'product/demod.log', 'type': 'log'}],
         'checksum_path': 'package.sha1'
     })
 

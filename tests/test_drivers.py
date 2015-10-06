@@ -106,6 +106,7 @@ _EXPECTED_NBAR = ptype.DatasetMetadata(
 _EXPECTED_PQA = ptype.DatasetMetadata(
     id_=UUID('c50c6bd4-e895-11e4-9814-1040f381a756'),
     ga_level='P55',
+    product_type='pqa',
     ga_label='LS8_OLITIRS_PQ_P55_GAPQ01-032_101_078_20141012',
     platform=ptype.PlatformMetadata(code='LANDSAT_8'),
     instrument=ptype.InstrumentMetadata(name='OLI_TIRS'),
