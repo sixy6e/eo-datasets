@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 
 import eodatasets.scripts.genpackage
-from tests import temp_dir, assert_file_structure, assert_same, integration_test
+from tests import temp_dir, assert_file_structure, assert_equal_datasets, integration_test
 from tests.integration import get_script_path, load_checksum_filenames
 
 script_path = get_script_path(eodatasets.scripts.genpackage)
@@ -95,7 +95,7 @@ def test_metadata():
     assert md['id'] is not None
     md['id'] = None
 
-    assert_same(
+    assert_equal_datasets(
         md,
         {
             'lineage': {'machine': {}, 'source_datasets': {}},
@@ -120,8 +120,8 @@ def test_metadata():
                                 {'path': 'product/P1540141AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
                                 {'path': 'product/P1540290AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
                                 {'path': 'product/P1540261AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
-                                {'path': 'product/P1540957AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
                                 {'path': 'product/P1540342AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540957AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
                                 {'path': 'product/P1540415AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
                                 {'path': 'product/P1540404AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
                                 {'path': 'product/P1540415AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},

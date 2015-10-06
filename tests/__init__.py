@@ -66,6 +66,14 @@ def assert_same(o1, o2, prefix=''):
         raise AssertionError("Mismatch for property %r:  %r != %r" % (prefix, o1, o2))
 
 
+def assert_equal_datasets(ds1, ds2):
+    def sort_anc_files(ds):
+        if 'ancillary_files' in ds:
+            ds['ancillary_files'] = sorted(ds['ancillary_files'], lambda x, y: cmp(x['path'], y['path']))
+    sort_anc_files(ds1)
+    sort_anc_files(ds2)
+    return assert_same(ds1, ds2)
+
 def assert_file_structure(folder, expected_structure, root=''):
     """
     Assert that the contents of a folder (filenames and subfolder names recursively)

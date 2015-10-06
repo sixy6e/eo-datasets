@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 
 import eodatasets.scripts.genpackage
-from tests import temp_dir, assert_file_structure, assert_same, integration_test
+from tests import temp_dir, assert_file_structure, assert_equal_datasets, integration_test
 from tests.integration import get_script_path, load_checksum_filenames
 
 script_path = get_script_path(eodatasets.scripts.genpackage)
@@ -67,7 +67,7 @@ def test_metadata():
 
     sys.stderr.write('\n\n\n\n%r\n\n\n' % md)
 
-    assert_same(
+    assert_equal_datasets(
         md,
         {'ga_label': 'NPP_VIIRS_STD-HDF5_P00_18966.ASA_0_0_20150626T053709Z20150626T055046',
          # 'image': {'bands': {}},

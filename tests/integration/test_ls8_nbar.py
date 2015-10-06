@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 
 import eodatasets.scripts.genpackage
-from tests import temp_dir, assert_file_structure, assert_same, integration_test
+from tests import temp_dir, assert_file_structure, assert_equal_datasets, integration_test
 from tests.integration import get_script_path, load_checksum_filenames
 
 
@@ -71,7 +71,7 @@ def test_package():
 
     # Check metadata is as expected.
 
-    assert_same(
+    assert_equal_datasets(
         md,
         {
             'id': None,
