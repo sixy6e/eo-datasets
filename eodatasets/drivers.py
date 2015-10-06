@@ -412,9 +412,10 @@ class OrthoDriver(DatasetDriver):
 
         dataset.product_type = "ortho"
         dataset.format_ = ptype.FormatMetadata("GeoTiff")
-        dataset.ga_label = _fill_dataset_label(dataset,
-                                   '{satnumber}_{sensor}_{level}_{galevel}_GALPGS01-{stationcode}_{path}_{rows}_{day}'
-                                   )
+        dataset.ga_label = _fill_dataset_label(
+            dataset,
+            '{satnumber}_{sensor}_{level}_{galevel}_GALPGS01-{stationcode}_{path}_{rows}_{day}'
+        )
 
         return dataset
 

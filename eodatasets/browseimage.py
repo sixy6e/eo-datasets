@@ -223,22 +223,14 @@ def create_typical_browse_metadata(dataset, destination_directory):
     """
 
     if dataset.product_type == 'pqa':
-        rgb_bands = ['pqa']
+        r = g = b = 'pqa'
     else:
         _satellite_browse_bands = {
             'LANDSAT_5': ('7', '4', '1'),
             'LANDSAT_7': ('7', '4', '1'),
             'LANDSAT_8': ('7', '5', '2'),
         }
-        rgb_bands = _satellite_browse_bands.get(dataset.platform.code)
-
-    if len(rgb_bands) == 3:
-        r, g, b = rgb_bands
-    elif len(rgb_bands) == 1:
-        band = rgb_bands[0]
-        r, g, b = band, band, band
-    else:
-        raise ValueError('Unexpected number of bands (%s). Received %r' % (len(rgb_bands), rgb_bands))
+        r, g, b = _satellite_browse_bands.get(dataset.platform.code)
 
     dataset.browse = {
         'medium': ptype.BrowseMetadata(

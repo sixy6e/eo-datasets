@@ -222,7 +222,8 @@ def package_dataset(dataset,
             # rename bands to <ga_label>_<band>.tif
             if source_path.suffix == ".bin":
                 dest_path = source_path.with_name(dataset.ga_label+"_B"+band.number+".tif")
-                dataset.ancillary_files.remove(ptype.AncillaryFile(type_='header', path=source_path.with_suffix('.hdr')))
+                dataset.ancillary_files.remove(ptype.AncillaryFile(type_='header',
+                                                                   path=source_path.with_suffix('.hdr')))
             if band.number == 'pqa':
                 dest_path = source_path.with_name(dataset.ga_label+".tif")
             dest_path = ptype.rebase_path(image_path, package_directory, dest_path)

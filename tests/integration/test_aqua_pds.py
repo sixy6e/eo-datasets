@@ -101,7 +101,7 @@ def test_metadata():
             'lineage': {'machine': {}, 'source_datasets': {}},
             'product_type': 'satellite_telemetry_data',
             'format': {'name': 'PDS'},
-            'image': {'bands': {}, 'day_percentage_estimate': 100.0},
+            'image': {'day_percentage_estimate': 100.0},
             # Default creation date is the same as the input folder ctime.
             'creation_dt': datetime.datetime.utcfromtimestamp(source_dataset.stat().st_ctime),
             'rms_string': 'S1A1C1D1R1',
@@ -115,7 +115,37 @@ def test_metadata():
                 'los': datetime.datetime(2014, 8, 7, 3, 16, 30, 228023),
                 'platform_orbit': 65208,
                 'aos': datetime.datetime(2014, 8, 7, 3, 16, 28, 750910)
-            }
+            },
+            'ancillary_files': [{'path': 'product/P1540157AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540141AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540290AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540261AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540957AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540342AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540415AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540404AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540415AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540262AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540957AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540157AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540406AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540405AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540405AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540064AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540402AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540402AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540342AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540141AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540414AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540261AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540406AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540064AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540407AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540262AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'},
+                                {'path': 'product/P1540404AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540414AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540407AAAAAAAAAAAAAA14219032341000.PDS', 'type': 'other'},
+                                {'path': 'product/P1540290AAAAAAAAAAAAAA14219032341001.PDS', 'type': 'other'}]
         }
     )
 
