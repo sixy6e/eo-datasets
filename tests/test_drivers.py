@@ -176,6 +176,12 @@ class TestDrivers(TestCase):
         input_folder = write_files({
             dataset_folder: {
                 'metadata.xml': """<EODS_DATASET>
+                <ACQUISITIONINFORMATION>
+                <EVENT>
+                <AOS>20141012T03:23:36</AOS>
+                <LOS>20141012T03:29:10</LOS>
+                </EVENT>
+                </ACQUISITIONINFORMATION>
                 <EXEXTENT>
                 <TEMPORALEXTENTFROM>20141012 00:55:54</TEMPORALEXTENTFROM>
                 <TEMPORALEXTENTTO>20141012 00:56:18</TEMPORALEXTENTTO>
@@ -194,11 +200,10 @@ class TestDrivers(TestCase):
             platform=ptype.PlatformMetadata(code='LANDSAT_8'),
             instrument=ptype.InstrumentMetadata(name='OLI_TIRS'),
             format_=ptype.FormatMetadata(name='GeoTiff'),
-            acquisition=ptype.AcquisitionMetadata(aos=datetime.date(2014, 10, 12),
+            acquisition=ptype.AcquisitionMetadata(aos=datetime.datetime(2014, 10, 12, 3, 23, 36),
+                                                  los=datetime.datetime(2014, 10, 12, 3, 29, 10),
                                                   groundstation=ptype.GroundstationMetadata(code='LGS')),
-            extent=ptype.ExtentMetadata(from_dt=datetime.datetime(2014, 10, 12, 0, 55, 54),
-                                        center_dt=datetime.datetime(2014, 10, 12, 0, 56, 6),
-                                        to_dt=datetime.datetime(2014, 10, 12, 0, 56, 18)),
+            extent=ptype.ExtentMetadata(center_dt=datetime.datetime(2014, 10, 12, 0, 56, 6)),
             image=ptype.ImageMetadata(satellite_ref_point_start=ptype.Point(x=101, y=78),
                                       satellite_ref_point_end=ptype.Point(x=101, y=78),
                                       bands={bandname: ptype.BandMetadata(number=bandname,

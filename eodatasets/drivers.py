@@ -4,8 +4,10 @@ import logging
 import re
 import string
 import datetime
+import xml.etree.cElementTree as etree
 
 from pathlib import Path
+from dateutil.parser import parse
 
 from eodatasets.metadata import mdf, mtl, adsfolder, rccfile, \
     passinfo, pds, npphdf5, image as md_image
@@ -421,7 +423,12 @@ class OrthoDriver(DatasetDriver):
 
     def to_bands(self, path):
         """
+<<<<<<< HEAD
         :type final_path: pathlib.Path
+=======
+        :type dataset: ptype.DatasetMetadata
+        :type path: pathlib.Path
+>>>>>>> develop
         :rtype: ptype.BandMetadata
 
         >>> OrthoDriver().to_bands(Path('/tmp/out/LT51030782005002ASA00_B3.TIF'))
@@ -668,25 +675,28 @@ class EODSDriver(DatasetDriver):
         if not dataset.extent:
             dataset.extent = ptype.ExtentMetadata()
 
-        def els2date(els, fmt):
+        def els2date(els):
             if not els:
                 return None
-            return datetime.datetime.strptime(els[0].text, fmt)
+            return parse(els[0].text)
 
-        import xml.etree.cElementTree as etree
         doc = etree.parse(str(path.joinpath('metadata.xml')))
-        # aos = els2date(doc.findall("./ACQUISITIONINFORMATION/EVENT/AOS"), "%Y%m%dT%H:%M:%S")
-        # los = els2date(doc.findall("./ACQUISITIONINFORMATION/EVENT/LOS"), "%Y%m%dT%H:%M:%S")
-        start_time = els2date(doc.findall("./EXEXTENT/TEMPORALEXTENTFROM"), "%Y%m%d %H:%M:%S")
-        end_time = els2date(doc.findall("./EXEXTENT/TEMPORALEXTENTTO"), "%Y%m%d %H:%M:%S")
+        aos = els2date(doc.findall("./ACQUISITIONINFORMATION/EVENT/AOS"))
+        los = els2date(doc.findall("./ACQUISITIONINFORMATION/EVENT/LOS"))
+        start_time = els2date(doc.findall("./EXEXTENT/TEMPORALEXTENTFROM"))
+        end_time = els2date(doc.findall("./EXEXTENT/TEMPORALEXTENTTO"))
 
         # check if the dates in the metadata file are at least as accurate as what we have
+        filename_time = datetime.datetime.strptime(fields["date"], "%Y%m%d")
         if abs(start_time - filename_time).days == 0:
-            dataset.extent.from_dt = start_time
-            dataset.extent.to_dt = end_time
+            dataset.acquisition.aos = aos
+            dataset.acquisition.los = los
             dataset.extent.center_dt = start_time + (end_time - start_time)/2
-        elif not dataset.extent.center_dt:
-            dataset.extent.center_dt = dataset.acquisition.aos
+        else:
+            dataset.acquisition.aos = filename_time.date()
+            dataset.acquisition.los = dataset.acquisition.aos
+            if dataset.extent and not dataset.extent.center_dt:
+                dataset.extent.center_dt = dataset.acquisition.aos
 
         return dataset
 
