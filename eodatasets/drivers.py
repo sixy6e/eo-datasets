@@ -93,7 +93,7 @@ class DatasetDriver(object):
 
         :type path: Path
         :param path: The filename of the input file.
-        :rtype: list of ptype.BandMetadata
+        :rtype: list[ptype.BandMetadata]
         """
         raise NotImplementedError()
 
@@ -423,13 +423,8 @@ class OrthoDriver(DatasetDriver):
 
     def to_bands(self, path):
         """
-<<<<<<< HEAD
-        :type final_path: pathlib.Path
-=======
-        :type dataset: ptype.DatasetMetadata
         :type path: pathlib.Path
->>>>>>> develop
-        :rtype: ptype.BandMetadata
+        :rtype: list[ptype.BandMetadata]
 
         >>> OrthoDriver().to_bands(Path('/tmp/out/LT51030782005002ASA00_B3.TIF'))
         [BandMetadata(path=PosixPath('/tmp/out/LT51030782005002ASA00_B3.TIF'), number='3')]
@@ -541,7 +536,7 @@ class NbarDriver(DatasetDriver):
     def to_bands(self, path):
         """
         :type path: Path
-        :rtype: ptype.BandMetadata
+        :rtype: list[ptype.BandMetadata]
 
         >>> p = Path('/tmp/something/reflectance_terrain_3.bin')
         >>> NbarDriver('terrain').to_bands(p)[0].number
@@ -604,7 +599,7 @@ class EODSDriver(DatasetDriver):
     def to_bands(self, path):
         """
         :type final_path: pathlib.Path
-        :rtype: ptype.BandMetadata
+        :rtype: list[ptype.BandMetadata]
         """
         if path.suffix.lower() != '.tif':
             return None
@@ -748,7 +743,7 @@ class PqaDriver(DatasetDriver):
         """
         :type path: Path
         :param path: The filename of the input file.
-        :rtype: list of ptype.BandMetadata
+        :rtype: list[ptype.BandMetadata]
         """
         if path.suffix != '.tif':
             return None
