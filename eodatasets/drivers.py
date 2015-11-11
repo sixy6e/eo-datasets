@@ -692,11 +692,10 @@ class EODSDriver(DatasetDriver):
             dataset.acquisition.aos = aos
             dataset.acquisition.los = los
             dataset.extent.center_dt = start_time + (end_time - start_time)/2
+            dataset.extent.from_dt = start_time
+            dataset.extent.to_dt = end_time
         else:
-            dataset.acquisition.aos = filename_time.date()
-            dataset.acquisition.los = dataset.acquisition.aos
-            if dataset.extent and not dataset.extent.center_dt:
-                dataset.extent.center_dt = dataset.acquisition.aos
+            assert False
 
         return dataset
 

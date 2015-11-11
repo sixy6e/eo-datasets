@@ -226,7 +226,7 @@ def create_typical_browse_metadata(dataset, destination_directory):
         r = g = b = 'pqa'
     else:
         _satellite_browse_bands = {
-            'LANDSAT_5': ('7', '4', '1'),
+            'LANDSAT_5': ('70', '40', '10'),
             'LANDSAT_7': ('7', '4', '1'),
             'LANDSAT_8': ('7', '5', '2'),
         }

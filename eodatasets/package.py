@@ -206,7 +206,7 @@ def package_dataset(dataset,
     _LOG.debug('Packaging %r -> %r', image_path, target_path)
     package_directory = target_path.joinpath('product')
     if not package_directory.exists():
-        package_directory.mkdir()
+        package_directory.mkdir(parents=True)
 
     def after_file_copy(source_path, target_path):
         _LOG.debug('%r -> %r', source_path, target_path)
@@ -227,6 +227,8 @@ def package_dataset(dataset,
             if band.number == 'pqa':
                 dest_path = source_path.with_name(dataset.ga_label+".tif")
             dest_path = ptype.rebase_path(image_path, package_directory, dest_path)
+            if not dest_path.parent.exists():
+                dest_path.parent.mkdir(parents=True)
             _copy_file(source_path, dest_path, compress_imagery=True, hard_link=hard_link)
             after_file_copy(source_path, dest_path)
             band.path = dest_path
