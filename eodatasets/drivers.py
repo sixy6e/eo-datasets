@@ -579,12 +579,17 @@ class NbarDriver(DatasetDriver):
 
 
 class EODSDriver(DatasetDriver):
+    """
+    A legacy dataset in eods-package format (ie. a scene01 directory).
+
+    We read whatever metadata we can.
+    """
     def get_id(self):
         return "EODS"
 
     def expected_source(self):
         """
-        Expected source dataset (driver).
+        EODS Datasets typically have no sources: their exact provenance was not recorded.
         :rtype: DatasetDriver
         """
         return None
