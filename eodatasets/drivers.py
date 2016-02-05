@@ -574,7 +574,6 @@ class NbarDriver(DatasetDriver):
         # dataset.lineage.algorithm = (ptype.AlgorithmMetadata.
         #                              from_dict(nbar_metadata['algorithm_information']))
 
-
         # FIXME: These ancillary files don't seem to fit here, the packager tries to copy! them??
         # if not dataset.ancillary_files:
         #     dataset.ancillary_files = []
@@ -601,8 +600,6 @@ class NbarDriver(DatasetDriver):
         #                                          file_data['data_file'],
         #                                          'Value: ' + str(file_data['value']))
         #         dataset.ancillary_files.append(ancil_file)
-
-
 
         # All NBARs are P54. (source: Lan Wei)
         dataset.product_type = self.get_id()
