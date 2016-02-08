@@ -718,6 +718,7 @@ class DatasetMetadata(SimpleObject):
     def __init__(self, id_=None,
                  ga_label=None,
                  ga_level=None,
+                 product_path=None,
                  product_type=None,
                  product_level=None,
                  product_doi=None,
@@ -754,6 +755,11 @@ class DatasetMetadata(SimpleObject):
         # Eg. 'P00', 'P51' etc.
         #: :type: str
         self.ga_level = ga_level
+
+        # The path to the relevant directory/file. Typically contains all the data for this dataset.
+        # Packaged datasets usually have a single 'product' folder inside of them containing all imagery.
+        #: :type: pathlib.Path
+        self.product_path = product_path or 'product'
 
         # 'L1T', 'L1G', 'L1GT' etc if applicable.
         # :type: str
