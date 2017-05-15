@@ -576,7 +576,7 @@ class NbarDriver(DatasetDriver):
         """
         # Skip hidden files and envi headers. (envi files are converted to tif during copy)
         return (file_path.suffix == '.tif' and
-                file_path.name.startswith('reflectance_%s_' % self.subset_name))
+                file_path.name.startswith('%s-reflectance' % self.subset_name))
 
     def translate_path(self, dataset, file_path):
         """
@@ -591,7 +591,7 @@ class NbarDriver(DatasetDriver):
         ga_label = self.get_ga_label(dataset)
         band_number = self._read_band_number(file_path)
 
-        return file_path.parent.with_name('%s_B%s.tif' % (ga_label, band_number))
+        return Path('%s_B%s.tif' % (ga_label, band_number))
 
     def to_band(self, dataset, path):
         """
