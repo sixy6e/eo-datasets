@@ -7,6 +7,7 @@ import re
 import string
 import xml.etree.cElementTree as etree
 from copy import deepcopy
+import tempfile
 
 import yaml
 
@@ -16,11 +17,13 @@ except ImportError:
     from yaml import Loader
 from dateutil.parser import parse
 from pathlib import Path
+import h5py
 
 from eodatasets import type as ptype, metadata
 from eodatasets.metadata import _GROUNDSTATION_LIST
 from eodatasets.metadata import mdf, level1, adsfolder, rccfile, \
     passinfo, pds, npphdf5, image as md_image, gqa, valid_region
+from eodatasets import package
 
 _LOG = logging.getLogger(__name__)
 
@@ -133,6 +136,39 @@ class DatasetDriver(object):
             return False
 
         return self.__dict__ == other.__dict__
+
+    def package_driver(self, dataset, dataset_folder, target_path,
+                       hard_link=False, additional_files=None):
+        """
+        Package the given dataset folder.
+
+        This includes copying the dataset into a folder, generating
+        metadata and checksum files, as well as optionally generating
+        a browse image.
+
+        Validates, and *Modifies* the passed in dataset with extra metadata.
+
+	Override to allow custom passing of files, formats, or packaging
+        multiple dataset types into a single product, eg ARD.
+
+        :type hard_link: bool
+        :type dataset: ptype.Dataset
+        :type dataset_folder: Path
+        :type target_path: Path
+        :param additional_files: Additional files to record in the package.
+        :type additional_files: tuple[Path]
+
+        :raises IncompletePackage: If not enough metadata can be extracted from the dataset.
+        :return: The generated GA Dataset ID (ga_label)
+        :rtype: str
+        """
+        return package.package_dataset(  # Also updates dataset
+            dataset_driver=self,
+            dataset=dataset,
+            image_path=dataset_folder,
+            target_path=target_path,
+            hard_link=hard_link,
+            additional_files=additional_files)
 
 
 def get_groundstation_code(gsi):
@@ -521,7 +557,8 @@ def borrow_single_sourced_fields(dataset, source_dataset):
 
 
 class NbarDriver(DatasetDriver):
-    METADATA_FILE = 'nbar-metadata.yaml'
+    METADATA_PATH = 'metadata/nbar-metadata'  # posixpath
+    FILENAME = 'standardised-data.h5'
     product_ids = {'brdf': 'nbar',
                    'terrain': 'nbart',
                    'lambertian': 'lambertian'}
@@ -618,8 +655,8 @@ class NbarDriver(DatasetDriver):
         :rtype: ptype.DatasetMetadata
         """
 
-        with open(str(path.joinpath('metadata', self.METADATA_FILE))) as f:
-            nbar_metadata = yaml.load(f, Loader=Loader)
+        with h5py.File(str(path.joinpath(self.FILENAME)), 'r') as fid:
+            nbar_metadata = yaml.load(fid[self.METADATA_PATH][()], Loader=Loader)
 
         # Copy relevant fields from source ortho.
         if 'level1' in dataset.lineage.source_datasets:
@@ -688,6 +725,48 @@ class NbarDriver(DatasetDriver):
             alg_meta.doi = alg_src_info['nbar_terrain_corrected_doi']
 
         dataset.lineage.algorithm = alg_meta
+
+    def package_driver(self, dataset, dataset_folder, target_path,
+                       hard_link=False, additional_files=None):
+        """
+        Overrides DatasetDriver.package_driver with an NBAR specific.
+
+        This includes copying the dataset into a folder, generating
+        metadata and checksum files, as well as optionally generating
+        a browse image.
+
+        Validates, and *Modifies* the passed in dataset with extra metadata.
+
+	Override to allow custom passing of files, formats, or packaging
+        multiple dataset types into a single product, eg ARD.
+
+        :type hard_link: bool
+        :type dataset: ptype.Dataset
+        :type dataset_folder: Path
+        :type target_path: Path
+        :param additional_files: Additional files to record in the package.
+        :type additional_files: tuple[Path]
+
+        :raises IncompletePackage: If not enough metadata can be extracted from the dataset.
+        :return: The generated GA Dataset ID (ga_label)
+        :rtype: str
+        """
+        from gaip.scripts import gaip_convert
+        with tempfile.TemporaryDirectory(prefix='.gaip-convert-tmp-',
+                                         dir=target_path) as image_path:
+
+            # temporary dataset extraction; includes compression
+            fname = str(dataset_folder.joinpath(self.FILENAME))
+            gaip_convert.run(fname, image_path, self.subset_name)
+
+            return package.package_dataset(  # Also updates dataset
+                dataset_driver=self,
+                dataset=dataset,
+                image_path=image_path,
+                target_path=target_path,
+                hard_link=hard_link,
+                additional_files=additional_files,
+                compress_imagery=False)
 
 
 def _read_band_number(file_path):
@@ -838,7 +917,9 @@ class EODSDriver(DatasetDriver):
 
 
 class PqaDriver(DatasetDriver):
-    METADATA_FILE = 'pq-metadata.yaml'
+    METADATA_PATH = 'metadata/pq-metadata'  # posixpath
+    FILENAME = 'standardised-data.h5'
+    subset_name = 'pixel-quality'
 
     def get_id(self):
         return 'pqa'
@@ -877,8 +958,8 @@ class PqaDriver(DatasetDriver):
 
         dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 
-        with open(str(path.joinpath('metadata', self.METADATA_FILE))) as f:
-            pq_metadata = yaml.load(f, Loader=Loader)
+        with h5py.File(str(path.joinpath(self.FILENAME)), 'r') as fid:
+            pq_metadata = yaml.load(fid[self.METADATA_PATH][()], Loader=Loader)
 
         if not dataset.lineage:
             dataset.lineage = ptype.LineageMetadata()
@@ -946,6 +1027,48 @@ class PqaDriver(DatasetDriver):
 
     def browse_image_bands(self, d):
         return 'pqa',
+
+    def package_driver(self, dataset, dataset_folder, target_path,
+                       hard_link=False, additional_files=None):
+        """
+        Overrides DatasetDriver.package_driver with an PQ specific.
+
+        This includes copying the dataset into a folder, generating
+        metadata and checksum files, as well as optionally generating
+        a browse image.
+
+        Validates, and *Modifies* the passed in dataset with extra metadata.
+
+	Override to allow custom passing of files, formats, or packaging
+        multiple dataset types into a single product, eg ARD.
+
+        :type hard_link: bool
+        :type dataset: ptype.Dataset
+        :type dataset_folder: Path
+        :type target_path: Path
+        :param additional_files: Additional files to record in the package.
+        :type additional_files: tuple[Path]
+
+        :raises IncompletePackage: If not enough metadata can be extracted from the dataset.
+        :return: The generated GA Dataset ID (ga_label)
+        :rtype: str
+        """
+        from gaip.scripts import gaip_convert
+        with tempfile.TemporaryDirectory(prefix='.gaip-convert-tmp-',
+                                         dir=target_path) as image_path:
+
+            # temporary dataset extraction; includes compression
+            fname = str(dataset_folder.joinpath(self.FILENAME))
+            gaip_convert.run(fname, image_path, self.subset_name)
+
+            return package.package_dataset(  # Also updates dataset
+                dataset_driver=self,
+                dataset=dataset,
+                image_path=image_path,
+                target_path=target_path,
+                hard_link=hard_link,
+                additional_files=additional_files,
+                compress_imagery=False)
 
 
 PACKAGE_DRIVERS = {
