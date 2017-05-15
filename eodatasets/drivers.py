@@ -521,7 +521,7 @@ def borrow_single_sourced_fields(dataset, source_dataset):
 
 
 class NbarDriver(DatasetDriver):
-    METADATA_FILE = 'nbar_metadata.yaml'
+    METADATA_FILE = 'nbar-metadata.yaml'
     product_ids = {'brdf': 'nbar',
                    'terrain': 'nbart',
                    'lambertian': 'lambertian'}
@@ -558,7 +558,7 @@ class NbarDriver(DatasetDriver):
         >>> NbarDriver('brdf')._read_band_number(p)
         '4'
         """
-        number = file_path.stem.split('_')[-1].lower()
+        number = file_path.stem.split('-')[-1].lower()
 
         if number.startswith('b'):
             return number[1:]
@@ -618,7 +618,7 @@ class NbarDriver(DatasetDriver):
         :rtype: ptype.DatasetMetadata
         """
 
-        with open(str(path.joinpath(self.METADATA_FILE))) as f:
+        with open(str(path.joinpath('metadata', self.METADATA_FILE))) as f:
             nbar_metadata = yaml.load(f, Loader=Loader)
 
         # Copy relevant fields from source ortho.
@@ -838,7 +838,7 @@ class EODSDriver(DatasetDriver):
 
 
 class PqaDriver(DatasetDriver):
-    METADATA_FILE = 'pq_metadata.yaml'
+    METADATA_FILE = 'pq-metadata.yaml'
 
     def get_id(self):
         return 'pqa'
@@ -877,7 +877,7 @@ class PqaDriver(DatasetDriver):
 
         dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 
-        with open(str(path.joinpath(self.METADATA_FILE))) as f:
+        with open(str(path.joinpath('metadata', self.METADATA_FILE))) as f:
             pq_metadata = yaml.load(f, Loader=Loader)
 
         if not dataset.lineage:
@@ -915,7 +915,8 @@ class PqaDriver(DatasetDriver):
         return dataset
 
     def include_file(self, file_path):
-        return file_path.suffix.lower() == '.tif'
+        return (file_path.suffix.lower() == '.tif' and
+                file_path.name.startswith('pixel-quality'))
 
     def translate_path(self, dataset, file_path):
         """
