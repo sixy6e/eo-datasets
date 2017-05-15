@@ -89,7 +89,8 @@ def package_dataset(dataset_driver,
                     image_path,
                     target_path,
                     hard_link=False,
-                    additional_files=None):
+                    additional_files=None,
+                    compress_imagery=True):
     """
     Package the given dataset folder.
 
@@ -106,6 +107,7 @@ def package_dataset(dataset_driver,
     :type target_path: Path
     :param additional_files: Additional files to record in the package.
     :type additional_files: tuple[Path]
+    :type compress_imagery: bool
 
     :raises IncompletePackage: If not enough metadata can be extracted from the dataset.
     :return: The generated GA Dataset ID (ga_label)
@@ -143,7 +145,8 @@ def package_dataset(dataset_driver,
         include_path=dataset_driver.include_file,
         translate_path=partial(dataset_driver.translate_path, dataset),
         after_file_copy=save_target_checksums_and_paths,
-        hard_link=hard_link
+        hard_link=hard_link,
+        compress_imagery=compress_imagery
     )
 
     write_additional_files(additional_files, checksums, target_path)
