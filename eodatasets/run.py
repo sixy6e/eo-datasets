@@ -133,10 +133,9 @@ def _package_folder(driver, input_data_paths, destination_path, source_datasets,
             if metadata_expand_fn is not None:
                 metadata_expand_fn(dataset)
 
-            dataset_id = package.package_dataset(  # Also updates dataset
-                dataset_driver=driver,
+            dataset_id = driver.package_driver(  # Also updates dataset
                 dataset=dataset,
-                image_path=dataset_folder,
+                dataset_folder=dataset_folder,
                 target_path=temp_output_dir,
                 hard_link=hard_link,
                 additional_files=additional_files
