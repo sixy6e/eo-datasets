@@ -1010,12 +1010,7 @@ class PqaDriver(DatasetDriver):
         :return:
         """
         # Rename to contain the ga_label.
-        suffix = file_path.suffix.lower()
-        if suffix == '.tif':
-            ga_label = self.get_ga_label(dataset)
-            return file_path.with_name(ga_label + suffix)
-
-        return file_path
+        return Path('%s.tif' % self.get_ga_label(dataset))
 
     def to_band(self, dataset, path):
         """
