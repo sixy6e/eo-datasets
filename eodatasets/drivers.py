@@ -558,6 +558,7 @@ def borrow_single_sourced_fields(dataset, source_dataset):
 
 class NbarDriver(DatasetDriver):
     METADATA_PATH = 'metadata/nbar-metadata'  # posixpath
+    METADATA_FILE = 'nbar-metadata.yaml'
     FILENAME = 'standardised-data.h5'
     product_ids = {'brdf': 'nbar',
                    'terrain': 'nbart',
@@ -655,8 +656,8 @@ class NbarDriver(DatasetDriver):
         :rtype: ptype.DatasetMetadata
         """
 
-        with h5py.File(str(path.joinpath(self.FILENAME)), 'r') as fid:
-            nbar_metadata = yaml.load(fid[self.METADATA_PATH][()], Loader=Loader)
+        with open(str(path.joinpath('metadata', self.METADATA_FILE)), 'r') as src:
+            nbar_metadata = yaml.load(src, Loader=Loader)
 
         # Copy relevant fields from source ortho.
         if 'level1' in dataset.lineage.source_datasets:
@@ -758,11 +759,12 @@ class NbarDriver(DatasetDriver):
             # temporary dataset extraction; includes compression
             fname = str(dataset_folder.joinpath(self.FILENAME))
             gaip_convert.run(fname, image_path, self.subset_name)
+            gaip_convert.run(fname, image_path, self.METADATA_PATH)
 
             return package.package_dataset(  # Also updates dataset
                 dataset_driver=self,
                 dataset=dataset,
-                image_path=image_path,
+                image_path=Path(image_path),
                 target_path=target_path,
                 hard_link=hard_link,
                 additional_files=additional_files,
@@ -918,6 +920,7 @@ class EODSDriver(DatasetDriver):
 
 class PqaDriver(DatasetDriver):
     METADATA_PATH = 'metadata/pq-metadata'  # posixpath
+    METADATA_FILE = 'pq-metadata.yaml'
     FILENAME = 'standardised-data.h5'
     subset_name = 'pixel-quality'
 
@@ -958,8 +961,8 @@ class PqaDriver(DatasetDriver):
 
         dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 
-        with h5py.File(str(path.joinpath(self.FILENAME)), 'r') as fid:
-            pq_metadata = yaml.load(fid[self.METADATA_PATH][()], Loader=Loader)
+        with open(str(path.joinpath('metadata', self.METADATA_FILE)), 'r' as src:
+            pq_metadata = yaml.load(src, Loader=Loader)
 
         if not dataset.lineage:
             dataset.lineage = ptype.LineageMetadata()
@@ -1060,11 +1063,12 @@ class PqaDriver(DatasetDriver):
             # temporary dataset extraction; includes compression
             fname = str(dataset_folder.joinpath(self.FILENAME))
             gaip_convert.run(fname, image_path, self.subset_name)
+            gaip_convert.run(fname, image_path, self.METADATA_PATH)
 
             return package.package_dataset(  # Also updates dataset
                 dataset_driver=self,
                 dataset=dataset,
-                image_path=image_path,
+                image_path=Path(image_path),
                 target_path=target_path,
                 hard_link=hard_link,
                 additional_files=additional_files,
