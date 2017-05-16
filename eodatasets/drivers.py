@@ -614,7 +614,8 @@ class NbarDriver(DatasetDriver):
         """
         # Skip hidden files and envi headers. (envi files are converted to tif during copy)
         return (file_path.suffix == '.tif' and
-                file_path.name.startswith('%s-reflectance' % self.subset_name))
+                file_path.parent.name == self.subset_name and
+                file_path.name.startswith('reflectance'))
 
     def translate_path(self, dataset, file_path):
         """
