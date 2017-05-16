@@ -961,7 +961,7 @@ class PqaDriver(DatasetDriver):
 
         dataset.format_ = ptype.FormatMetadata('GeoTIFF')
 
-        with open(str(path.joinpath('metadata', self.METADATA_FILE)), 'r' as src:
+        with open(str(path.joinpath('metadata', self.METADATA_FILE)), 'r') as src:
             pq_metadata = yaml.load(src, Loader=Loader)
 
         if not dataset.lineage:
