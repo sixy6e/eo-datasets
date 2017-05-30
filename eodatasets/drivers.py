@@ -988,15 +988,6 @@ class PqaDriver(DatasetDriver):
             version=str(pq_metadata['algorithm_information']['software_version']),
             doi=pq_metadata['algorithm_information']['pq_doi'])
 
-        # software versions
-        software_versions = pq_metadata['software_versions']
-
-        # copy across any populated during the init packaging phase
-        for key, value in dataset.lineage.machine.software_versions.items():
-            software_versions[key] = value
-
-        dataset.lineage.machine.software_versions = software_versions
-
         # system info
         system_info = pq_metadata['system_information']
         dataset.lineage.machine.hostname = system_info['hostname']
