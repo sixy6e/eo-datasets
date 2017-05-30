@@ -714,9 +714,13 @@ class NbarDriver(DatasetDriver):
         for name, values in ancils.items():
             if 'data_file' not in values:
                 continue
+            if 'dataset_pathname' in values:
+                dataset_name = values['dataset_pathname']
+            else:
+                dataset_name = values['data_file'].rpartition('/')[2]
             ancil_files[name] = ptype.AncillaryMetadata(
                 type_=name,
-                name=values['data_file'].rpartition('/')[2],
+                name=dataset_name,
                 uri=values['data_file'],
                 file_owner=values['user'],
                 # PyYAML parses these as datetimes already.
