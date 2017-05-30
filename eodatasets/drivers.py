@@ -694,6 +694,21 @@ class NbarDriver(DatasetDriver):
         if parameters:
             dataset.lineage.algorithm.parameters = parameters
 
+        # software versions
+        software_versions = nbar_metadata['software_versions']
+
+        # copy across any populated during the init packaging phase
+        for key, value in dataset.lineage.machine.software_versions.items():
+            software_versions[key] = value
+
+        dataset.lineage.machine.software_versions = software_versions
+
+        # system info
+        system_info = nbar_metadata['system_information']
+        dataset.lineage.machine.hostname = system_info['hostname']
+        dataset.lineage.machine.uname = system_info['uname']
+        dataset.lineage.machine.runtime_id = system_info['runtime_id']
+
         # Add ancillary files
         ancil_files = {}
         for name, values in ancils.items():
@@ -972,6 +987,21 @@ class PqaDriver(DatasetDriver):
             name='pqa',
             version=str(pq_metadata['algorithm_information']['software_version']),
             doi=pq_metadata['algorithm_information']['pq_doi'])
+
+        # software versions
+        software_versions = pq_metadata['software_versions']
+
+        # copy across any populated during the init packaging phase
+        for key, value in dataset.lineage.machine.software_versions.items():
+            software_versions[key] = value
+
+        dataset.lineage.machine.software_versions = software_versions
+
+        # system info
+        system_info = pq_metadata['system_information']
+        dataset.lineage.machine.hostname = system_info['hostname']
+        dataset.lineage.machine.uname = system_info['uname']
+        dataset.lineage.machine.runtime_id = system_info['runtime_id']
 
         # Add ancillary files
         ancils = pq_metadata['ancillary']
